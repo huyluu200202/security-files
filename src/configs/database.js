@@ -10,7 +10,14 @@ const sequelize = new Sequelize(
         port: process.env.DB_PORT,
         dialect: 'mysql',
         logging: console.log,
-        timezone: '+07:00'
+        dialectOptions: {
+            charset: 'utf8mb4',
+        },
+        define: {
+            charset: 'utf8mb4',
+            collate: 'utf8mb4_general_ci',
+        },
+        timezone: '+07:00',
     }
 );
 
@@ -19,7 +26,7 @@ const sequelize = new Sequelize(
         await sequelize.authenticate();
         console.log('Connected to database successfully');
     } catch (error) {
-        console.error('Failed to connected to database', error);
+        console.error('Failed to connect to the database', error);
     }
 })();
 

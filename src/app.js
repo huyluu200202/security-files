@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const userRoutes = require('./routes/userRoute');
 const fileRoutes = require('./routes/fileRoute');
 const path = require('path');
-const initializeAdminAccount = require('./utils/initializeAdmin'); 
+const initializeAdminAccount = require('./utils/initializeAdmin');
 
 const app = express();
 
@@ -16,7 +16,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 initializeAdminAccount();
 
-app.use('/', fileRoutes);  
+app.use('/', fileRoutes);
 app.use('/', userRoutes);
 
 app.listen(3000, () => {

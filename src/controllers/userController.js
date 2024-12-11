@@ -48,15 +48,15 @@ exports.login = async (req, res) => {
         }
 
         const token = jwt.sign(
-            { id: user.id, role: user.role },
-            process.env.JWT_SECRET_KEY,
+            { userId: user.id, username: user.username, fullname: user.fullname, role: user.role },
+            'your-secret-key',
             { expiresIn: '1h' }
         );
 
         res.status(200).json({
             message: 'Login successful',
             token,
-            fullname: user.fullname, 
+            user: { username: user.username, fullname: user.fullname },
         });
 
     } catch (error) {
@@ -64,3 +64,4 @@ exports.login = async (req, res) => {
         res.status(500).json({ message: 'An error occurred during login', error: error.message });
     }
 };
+

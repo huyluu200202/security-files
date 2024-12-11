@@ -1,0 +1,31 @@
+<header class="navbar navbar-expand-lg navbar-light bg-body-tertiary">
+    <a class="navbar-brand ms-2" href="/">Home</a>
+    <div class="collapse navbar-collapse d-flex justify-content-between w-100">
+        <ul class="navbar-nav mb-2 mb-lg-0">
+            <li class="nav-item" id="login-link">
+                <a class="nav-link" href="/login">Login</a>
+            </li>
+            <li class="nav-item" id="register-link">
+                <a class="nav-link" href="/register">Register</a>
+            </li>
+            <li class="nav-item" id="user-info" style="display: none;">
+                <span class="nav-link" id="user-name"></span>
+            </li>
+            <li class="nav-item" id="upload-link" style="display: none;">
+                <a class="nav-link" href="/upload">Upload File</a>
+            </li>
+            <li class="nav-item" id="logout-link" style="display: none;">
+                <a class="nav-link" href="/" id="logout-btn">Logout</a>
+            </li>
+        </ul>
+    </div>
+</header>
+
+<style>
+    header {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        right: 0;
+    }
+</style>

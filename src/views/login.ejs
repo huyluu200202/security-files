@@ -8,117 +8,77 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/mdbootstrap/css/mdb.min.css" rel="stylesheet">
-  
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: #f4f4f4;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 500px;
-      padding: 20px;
-      background-color: #fff;
-      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
-    }
-
-    .form-outline {
-      display: block;
-      margin-top: 16px;
-    }
-
-    .row {
-      margin-top: 16px;
-    }
-
-    input {
-      width: 100%;
-      padding: 8px 12px;
-      margin: 8px 0;
-      display: inline-block;
-      border-radius: 4px;
-      box-sizing: border-box;
-      transition: 0.3s;
-      font-size: 16px;
-    }
-
-    .btn {
-      margin: 16px 0;
-    }
-  </style>
-
 </head>
 
-<body>
-  <div class="container">
-    <h1 class="my-4 mt-4">Login</h1>
-    <form id="loginForm">
-      <div class="form-outline mb-4">
-        <label class="form-label" for="form2Example1">Username</label>
-        <br>
-        <input type="text" id="form2Example1" class="form-control" name="username" required />
-      </div>
+<body class="bg-light d-flex flex-column min-vh-100">
 
-      <div class="form-outline mb-4">
-        <label class="form-label" for="form2Example2">Password</label>
-        <br>
-        <input type="password" id="form2Example2" class="form-control" name="password" required />
-      </div>
+  <!-- Include Header -->
+  <%- include('partials/header') %>
 
-      <div class="row mb-4 justify-content-between">
-        <div class="col d-flex align-items-center">
-          <div class="form-check" style="padding: 0;">
-            <a href="#!">Forgot password?</a>
+  <div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card p-4 shadow-sm" style="width: 100%; max-width: 500px;">
+      <h1 class="text-center mb-4">Login</h1>
+      <form id="loginForm">
+        <div class="mb-3">
+          <label class="form-label" for="form2Example1">Username</label>
+          <input type="text" id="form2Example1" class="form-control" name="username" required />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="form2Example2">Password</label>
+          <input type="password" id="form2Example2" class="form-control" name="password" required />
+        </div>
+
+        <div class="row mb-4 justify-content-between">
+          <div class="col d-flex align-items-center">
+            <a href="#" class="form-check-label">Forgot password?</a>
           </div>
         </div>
-      </div>
 
-      <button type="submit" class="btn btn-primary">Login</button>
-    </form>
+        <button type="submit" class="btn btn-primary w-100 m-0">Login</button>
+      </form>
+    </div>
   </div>
 
+  <!-- Include Footer -->
+  <%- include('partials/footer') %>
+
   <script>
-    document.getElementById('loginForm').addEventListener('submit', function (e) {
+    const loginForm = document.getElementById('loginForm');
+    loginForm.addEventListener('submit', function (e) {
       e.preventDefault();
 
+      // Lấy giá trị username và password từ form
       const username = document.getElementById('form2Example1').value;
       const password = document.getElementById('form2Example2').value;
 
+      // Gửi yêu cầu login đến API
       fetch('/api/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password }) // Gửi thông tin login
       })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.token) {
-            alert('Login successful!');
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('fullname', data.fullname);
-            window.location.href = '/';
-          } else {
-            alert(data.message || 'Login failed');
-          }
-        })
-        .catch((error) => {
-          alert('Login failed: ' + error.message);
-        });
+      .then(response => response.json())
+      .then(data => {
+        if (data.token) {
+          // Lưu token vào localStorage
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('fullname', data.user.fullname);
+          // Chuyển hướng về trang chủ sau khi đăng nhập thành công
+          window.location.href = '/';
+        } else {
+          alert('Login failed: ' + data.message); // Thông báo khi login không thành công
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
     });
-
   </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

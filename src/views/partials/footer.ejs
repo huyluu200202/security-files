@@ -1,0 +1,42 @@
+<footer class="bg-body-tertiary mt-auto">
+    <div class="container">
+        <section class="d-flex justify-content-center mb-2">
+            <a class="btn btn-link" href="#" role="button"><i class="fab fa-facebook-f"></i></a>
+            <a class="btn btn-link" href="#" role="button"><i class="fab fa-twitter"></i></a>
+            <a class="btn btn-link" href="#" role="button"><i class="fab fa-google"></i></a>
+            <a class="btn btn-link" href="#" role="button"><i class="fab fa-instagram"></i></a>
+            <a class="btn btn-link" href="#" role="button"><i class="fab fa-linkedin"></i></a>
+            <a class="btn btn-link" href="#" role="button"><i class="fab fa-github"></i></a>
+        </section>
+    </div>
+</footer>
+
+<script>
+    let token = localStorage.getItem('token');
+    let fullname = localStorage.getItem('fullname');
+
+    if (token && fullname) {
+        document.getElementById('login-link').style.display = 'none';
+        document.getElementById('register-link').style.display = 'none';
+        document.getElementById('user-info').style.display = 'block';
+        document.getElementById('user-name').textContent = 'Hello, ' + fullname + '!';
+        document.getElementById('upload-link').style.display = 'block';
+        document.getElementById('logout-link').style.display = 'block';
+
+        document.getElementById('logout-btn').addEventListener('click', function () {
+            localStorage.removeItem('token');
+            localStorage.removeItem('fullname');
+            window.location.reload();
+        });
+    }
+</script>
+
+<style>
+    footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 50px;
+    }
+</style>
