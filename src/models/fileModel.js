@@ -17,18 +17,18 @@ const File = sequelize.define('File', {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    fileType: {
-        type: DataTypes.STRING(100),
+    friendlyFileType: {
+        type: DataTypes.STRING(255),  
         allowNull: true,
     },
-    fileSize: {
-        type: DataTypes.BIGINT,
+    formattedFileSize: {
+        type: DataTypes.STRING(50),  
         allowNull: true,
     },
     uploadedAt: {
         type: DataTypes.DATE,
         allowNull: false,
-        defaultValue: () => moment().tz('Asia/Ho_Chi_Minh').toDate(), 
+        defaultValue: () => moment().tz('Asia/Ho_Chi_Minh').toDate(),
         get() {
             const rawValue = this.getDataValue('uploadedAt');
             return rawValue ? moment(rawValue).tz('Asia/Ho_Chi_Minh').format() : null;
@@ -38,7 +38,7 @@ const File = sequelize.define('File', {
     sequelize,
     tableName: 'files',
     timestamps: false,
-    uploadedAt: 'uploadedAt'
+    uploadedAt: 'uploadedAt',
 });
 
 module.exports = File;

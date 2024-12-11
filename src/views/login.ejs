@@ -12,7 +12,6 @@
 
 <body class="bg-light d-flex flex-column min-vh-100">
 
-  <!-- Include Header -->
   <%- include('partials/header') %>
 
   <div class="container d-flex justify-content-center align-items-center min-vh-100">
@@ -40,7 +39,6 @@
     </div>
   </div>
 
-  <!-- Include Footer -->
   <%- include('partials/footer') %>
 
   <script>
@@ -48,28 +46,24 @@
     loginForm.addEventListener('submit', function (e) {
       e.preventDefault();
 
-      // Lấy giá trị username và password từ form
       const username = document.getElementById('form2Example1').value;
       const password = document.getElementById('form2Example2').value;
 
-      // Gửi yêu cầu login đến API
       fetch('/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ username, password }) // Gửi thông tin login
+        body: JSON.stringify({ username, password }) 
       })
       .then(response => response.json())
       .then(data => {
         if (data.token) {
-          // Lưu token vào localStorage
           localStorage.setItem('token', data.token);
           localStorage.setItem('fullname', data.user.fullname);
-          // Chuyển hướng về trang chủ sau khi đăng nhập thành công
           window.location.href = '/';
         } else {
-          alert('Login failed: ' + data.message); // Thông báo khi login không thành công
+          alert('Login failed: ' + data.message); 
         }
       })
       .catch(error => {

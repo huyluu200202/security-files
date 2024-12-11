@@ -12,6 +12,7 @@ const mimeTypeMap = {
     'application/zip': 'ZIP Archive',
 };
 
+
 const convertFileSize = (size) => {
     if (size < 1024) return size + ' bytes';
     else if (size < 1048576) return (size / 1024).toFixed(2) + ' KB';
@@ -20,7 +21,7 @@ const convertFileSize = (size) => {
 };
 
 const getFriendlyFileType = (mimeType) => {
-    return mimeTypeMap[mimeType] || mimeType;
+    return mimeTypeMap[mimeType] || mimeType; 
 };
 
 exports.uploadFile = async (req, res) => {
@@ -28,47 +29,52 @@ exports.uploadFile = async (req, res) => {
         const { originalname, mimetype, size } = req.file;
         const fileName = Buffer.from(originalname, 'latin1').toString('utf8');
 
+        const friendlyFileType = getFriendlyFileType(mimetype);  
+        const formattedFileSize = convertFileSize(size); 
+
         const newFile = await File.create({
             fileName,
             filePath: req.file.path,
-            fileType: mimetype,
-            fileSize: size,
+            friendlyFileType,  
+            formattedFileSize,  
         });
 
         res.status(201).json(newFile);
     } catch (error) {
+        console.error('File upload failed:', error);  
         res.status(500).json({ error: 'File upload failed' });
     }
 };
 
+
 exports.getFiles = async () => {
     try {
-        const files = await File.findAll(); 
+        const files = await File.findAll();  
         const filesWithFriendlyTypes = files.map(file => ({
             ...file.dataValues,
-            friendlyFileType: getFriendlyFileType(file.fileType),
-            fileSize: convertFileSize(file.fileSize),
+            friendlyFileType: getFriendlyFileType(file.friendlyFileType),  
+            fileSize: file.formattedFileSize,  
         }));
 
-        return filesWithFriendlyTypes; 
+        return filesWithFriendlyTypes;  
     } catch (error) {
-        console.error('Error fetching files:', error);
-        throw new Error('Failed to retrieve files'); 
+        console.error('Error fetching files:', error);  
+        throw new Error('Failed to retrieve files');
     }
 };
 
 exports.getFilesName = async (req, res) => {
     try {
-        const files = await File.findAll();
+        const files = await File.findAll(); 
         const filesWithFriendlyTypes = files.map(file => ({
             ...file.dataValues,
-            friendlyFileType: getFriendlyFileType(file.fileType),
-            fileSize: convertFileSize(file.fileSize), 
+            friendlyFileType: file.friendlyFileType,  
+            fileSize: file.formattedFileSize, 
         }));
 
-        res.render('home', { files: filesWithFriendlyTypes }); 
+        res.render('home', { files: filesWithFriendlyTypes });  
     } catch (error) {
-        console.error('Error fetching files:', error);
+        console.error('Error fetching files:', error);  
         res.status(500).send('Internal Server Error');
     }
 };

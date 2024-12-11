@@ -1,31 +1,45 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
-const File = require('../models/fileModel'); 
+const File = require('../models/fileModel');
+// const authenticate = require('../middlewares/authenticate');
 
+// Register and Login Routes
 router.post('/api/register', userController.register);
 router.post('/api/login', userController.login);
 
-router.get('/', async (req, res) => {
-  try {
-      const files = await File.findAll(); 
-      res.render('home', { files }); 
-  } catch (error) {
-      res.status(500).json({ message: 'An error occurred', error: error.message });
-  }
+// Home route for viewing files
+// router.get('/', authenticate, async (req, res) => {  // Using 'authenticate' middleware here
+//     try {
+//         const files = await File.findAll();
+//         res.render('home', { 
+//             files, 
+//             authenticate: true, // Indicating the user is authenticated
+//             user: req.user, // You can pass user info from the JWT to the view
+//         });
+//     } catch (error) {
+//         res.status(500).json({ message: 'An error occurred', error: error.message });
+//     }
+// });
+
+router.get('/', async (req, res) => {  // Using 'authenticate' middleware here
+    try {
+        const files = await File.findAll();
+        res.render('home', { 
+            files, 
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'An error occurred', error: error.message });
+    }
 });
 
-router.get('/', (req, res) => {
-  res.render('home', { message: 'Welcome to the Home Page!' });
-});
-
-
+// Login and Register pages
 router.get('/login', (req, res) => {
-  res.render('login');
+    res.render('login');
 });
 
 router.get('/register', (req, res) => {
-  res.render('register');
+    res.render('register');
 });
 
 module.exports = router;
