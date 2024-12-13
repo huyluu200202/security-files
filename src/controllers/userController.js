@@ -26,7 +26,10 @@ exports.register = async (req, res) => {
             role,
         });
 
-        res.status(201).json({ message: 'Register successful', user: { username: newUser.username, email: newUser.email } });
+        res.status(201).json({
+            message: 'Register successful',
+            user: { username: newUser.username, email: newUser.email }
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'An error occurred while registering user', error: error.message });
@@ -49,19 +52,23 @@ exports.login = async (req, res) => {
 
         const token = jwt.sign(
             { userId: user.id, username: user.username, fullname: user.fullname, role: user.role },
-            'your-secret-key',
+            '06ffc9c35d1a596406dbc2492b4d79db1976597a91885472def9060e6fa581eb',
             { expiresIn: '1h' }
         );
+
+        res.cookie('token', token, {
+            httpOnly: true, 
+            secure: process.env.NODE_ENV === 'production',  
+            maxAge: 3600000,  
+        });
 
         res.status(200).json({
             message: 'Login successful',
             token,
-            user: { username: user.username, fullname: user.fullname },
+            user: { username: user.username, fullname: user.fullname }
         });
-
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'An error occurred during login', error: error.message });
     }
 };
-

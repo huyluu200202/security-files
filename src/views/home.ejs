@@ -19,51 +19,50 @@
     <%- include('partials/header') %>
 
         <div class="container my-5">
-            <h1 class="mb-4 mt-4 text-center">Uploaded Files</h1>
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th scope="col">File Name</th>
-                        <th scope="col">File Type</th>
-                        <th scope="col">File Size</th>
-                        <th scope="col">Uploaded At</th>
-                        <th scope="col">Download</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% if (files && files.length> 0) { %>
-                        <% files.forEach(file=> { %>
-                            <tr>
-                                <td>
-                                    <%= file.fileName %>
-                                </td>
-                                <td>
-                                    <%= file.friendlyFileType %> 
-                                </td>
-                                <td>
-                                    <%= file.formattedFileSize %> 
-                                </td>
-                                <td>
-                                    <%= new Date(file.uploadedAt).toLocaleString('en-GB') %>
-                                </td>
-                                <td>
-                                    <a href="<%= '/uploads/' + file.filePath.split('/').pop() %>"
-                                        class="btn btn-primary btn-sm" download>
-                                        <i class="fas fa-download"></i> Download
-                                    </a>
-                                </td>
-                            </tr>
-                            <% }); %>
-                                <% } else { %>
-                                    <tr>
-                                        <td colspan="5" class="text-center">No files uploaded yet.</td>
-                                    </tr>
-                                    <% } %>
-                </tbody>
-            </table>
-            <a href="/upload" class="btn btn-success">
-                <i class="fas fa-upload"></i> Upload Another File
-            </a>
+            <div id="file-table">
+                <h1 class="mb-4 mt-4 text-center">Uploaded Files</h1>
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">File Name</th>
+                            <th scope="col">File Type</th>
+                            <th scope="col">File Size</th>
+                            <th scope="col">Uploaded At</th>
+                            <th scope="col">Download</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (files && files.length> 0) { %>
+                            <% files.forEach(file=> { %>
+                                <tr>
+                                    <td>
+                                        <%= file.fileName %>
+                                    </td>
+                                    <td>
+                                        <%= file.friendlyFileType %>
+                                    </td>
+                                    <td>
+                                        <%= file.formattedFileSize %>
+                                    </td>
+                                    <td>
+                                        <%= new Date(file.uploadedAt).toLocaleString('en-GB') %>
+                                    </td>
+                                    <td>
+                                        <a href="<%= '/uploads/' + file.filePath.split('/').pop() %>"
+                                            class="btn btn-primary btn-sm" download>
+                                            <i class="fas fa-download"></i> Download
+                                        </a>
+                                    </td>
+                                </tr>
+                                <% }); %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="5" class="text-center">No files uploaded yet.</td>
+                                        </tr>
+                                        <% } %>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <%- include('partials/footer') %>
