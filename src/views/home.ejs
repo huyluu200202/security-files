@@ -48,8 +48,8 @@
                                         <%= new Date(file.uploadedAt).toLocaleString('en-GB') %>
                                     </td>
                                     <td>
-                                        <a href="<%= '/uploads/' + file.filePath.split('/').pop() %>"
-                                            class="btn btn-primary btn-sm" download>
+                                        <a href="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
+                                            class="btn btn-primary btn-sm" download="<%= file.fileName %>">
                                             <i class="fas fa-download"></i> Download
                                         </a>
                                     </td>
@@ -62,6 +62,11 @@
                                         <% } %>
                     </tbody>
                 </table>
+                <div class="mt-4">
+                    <a href="/upload" class="btn btn-info m-0">
+                        <i class="fas fa-file"></i> Upload File
+                    </a>
+                </div>
             </div>
         </div>
 

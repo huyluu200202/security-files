@@ -1,7 +1,9 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const fileController = require('../controllers/fileController');
+const authenticate = require('../middlewares/authenticate');
 
 const router = express.Router();
 
@@ -21,6 +23,18 @@ router.get('/upload', (req, res) => {
     res.render('upload'); 
 });
 
-router.post('/api/upload', upload.single('file'), fileController.uploadFile);
+router.get('/uploads/:filename', (req, res) => {
+  const filePath = path.join(__dirname, 'uploads', req.params.filename);
+
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+      if (err) {
+          console.error('File not found:', filePath);
+          return res.status(404).send('File not found');
+      }
+      res.download(filePath);
+  });
+});
+
+router.post('/api/upload', authenticate, upload.single('file'), fileController.uploadFile);
 
 module.exports = router;

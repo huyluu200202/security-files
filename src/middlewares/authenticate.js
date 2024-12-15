@@ -1,25 +1,18 @@
-// // middlewares/authenticate.js
-// const jwt = require('jsonwebtoken');
-// const secretKey = '06ffc9c35d1a596406dbc2492b4d79db1976597a91885472def9060e6fa581eb';  // Use a secure key for signing tokens
+const jwt = require('jsonwebtoken');
 
-// module.exports = (req, res, next) => {
-//     // Get the token from the Authorization header (Bearer <token>)
-//     const token = req.header('Authorization') && req.header('Authorization').split(' ')[1];
+const authenticate = (req, res, next) => {
+    const token = req.header('Authorization')?.split(' ')[1]; // Extract token from 'Bearer token'
+    if (!token) {
+        return res.status(403).json({ error: 'Access denied' });
+    }
 
-//     if (!token) {
-//         // If there is no token, return an error or redirect to login
-//         return res.redirect('/login');
-//     }
+    try {
+        const decoded = jwt.verify(token, '06ffc9c35d1a596406dbc2492b4d79db1976597a91885472def9060e6fa581eb'); // Replace with your secret key
+        req.user = decoded; // Set user data to req.user
+        next();
+    } catch (error) {
+        res.status(400).json({ error: 'Invalid token' });
+    }
+};
 
-//     try {
-//         // Verify the token using the secret key
-//         const decoded = jwt.verify(token, secretKey);
-
-//         // If token is valid, save the decoded user data to the request object
-//         req.user = decoded;  // You can access user data using req.user in the route
-//         next();  // Continue with the request
-//     } catch (error) {
-//         // If token verification fails, redirect to login or send an error
-//         return res.redirect('/login');
-//     }
-// };
+module.exports = authenticate;

@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../configs/database');
+const User = require('../models/userModel');
 const moment = require('moment-timezone');
 const { v4: uuidv4 } = require('uuid');
 
@@ -41,6 +42,14 @@ const File = sequelize.define('File', {
     ocrContent: {
         type: DataTypes.TEXT,
         allowNull: true,
+    },
+    user_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: User,
+            key: 'id'
+        }
     },
 }, {
     sequelize,

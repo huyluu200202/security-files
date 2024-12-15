@@ -20,7 +20,7 @@
     "moment-timezone": "^0.5.46",
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.11.5",
-    "nodemon": "^3.1.7",
+    "nodemon": "^3.1.9",
     "sequelize": "^6.37.5",
     "uuid": "^11.0.3"
   }

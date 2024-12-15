@@ -1,4 +1,5 @@
 const File = require('../models/fileModel');
+const User = require('../models/userModel');
 
 const mimeTypeMap = {
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Word Document',
@@ -21,60 +22,68 @@ const convertFileSize = (size) => {
 };
 
 const getFriendlyFileType = (mimeType) => {
-    return mimeTypeMap[mimeType] || mimeType; 
+    return mimeTypeMap[mimeType] || mimeType;
 };
 
 exports.uploadFile = async (req, res) => {
     try {
+        const userId = req.user.userId;
+
+        // Kiểm tra xem người dùng có tồn tại trong cơ sở dữ liệu không
+        const user = await User.findOne({ where: { id: userId } });
+        if (!user) {
+            return res.status(400).json({ message: 'User does not exist' });
+        }
+
         const { originalname, mimetype, size } = req.file;
         const fileName = Buffer.from(originalname, 'latin1').toString('utf8');
 
-        const friendlyFileType = getFriendlyFileType(mimetype);  
-        const formattedFileSize = convertFileSize(size); 
+        const friendlyFileType = getFriendlyFileType(mimetype);
+        const formattedFileSize = convertFileSize(size);
 
         const newFile = await File.create({
             fileName,
             filePath: req.file.path,
-            friendlyFileType,  
-            formattedFileSize,  
+            friendlyFileType,
+            formattedFileSize,
+            user_id: userId
         });
 
         res.status(201).json(newFile);
     } catch (error) {
-        console.error('File upload failed:', error);  
+        console.error('File upload failed:', error);
         res.status(500).json({ error: 'File upload failed' });
     }
 };
 
-
 exports.getFiles = async () => {
     try {
-        const files = await File.findAll();  
+        const files = await File.findAll();
         const filesWithFriendlyTypes = files.map(file => ({
             ...file.dataValues,
-            friendlyFileType: getFriendlyFileType(file.friendlyFileType),  
-            fileSize: file.formattedFileSize,  
+            friendlyFileType: getFriendlyFileType(file.friendlyFileType),
+            fileSize: file.formattedFileSize,
         }));
 
-        return filesWithFriendlyTypes;  
+        return filesWithFriendlyTypes;
     } catch (error) {
-        console.error('Error fetching files:', error);  
+        console.error('Error fetching files:', error);
         throw new Error('Failed to retrieve files');
     }
 };
 
 exports.getFilesName = async (req, res) => {
     try {
-        const files = await File.findAll(); 
+        const files = await File.findAll();
         const filesWithFriendlyTypes = files.map(file => ({
             ...file.dataValues,
-            friendlyFileType: file.friendlyFileType,  
-            fileSize: file.formattedFileSize, 
+            friendlyFileType: file.friendlyFileType,
+            fileSize: file.formattedFileSize,
         }));
 
-        res.render('home', { files: filesWithFriendlyTypes });  
+        res.render('home', { files: filesWithFriendlyTypes });
     } catch (error) {
-        console.error('Error fetching files:', error);  
+        console.error('Error fetching files:', error);
         res.status(500).send('Internal Server Error');
     }
 };

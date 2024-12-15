@@ -1,0 +1,61 @@
+DROP DATABASE IF EXISTS `Security_Files`;
+CREATE DATABASE Security_Files;
+USE Security_Files;
+
+CREATE TABLE users (
+    id VARCHAR(50) PRIMARY KEY, 
+    fullname VARCHAR(255) NOT NULL,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('user', 'admin') DEFAULT 'user',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE files (
+    id VARCHAR(255) NOT NULL PRIMARY KEY,
+    fileName VARCHAR(255) NOT NULL,
+    filePath VARCHAR(255) NOT NULL,
+    friendlyFileType VARCHAR(255), 
+    formattedFileSize VARCHAR(50), 
+    uploadedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ocrStatus ENUM('pending', 'processing', 'completed', 'failed') DEFAULT 'pending',
+    ocrContent TEXT,
+    user_id VARCHAR(50) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE permissions (
+    id VARCHAR(255) NOT NULL PRIMARY KEY,
+    user_id VARCHAR(50) NOT NULL,  
+    file_id VARCHAR(255) NOT NULL,  
+    can_view BOOLEAN DEFAULT FALSE,  
+    can_download BOOLEAN DEFAULT FALSE,  
+    can_edit BOOLEAN DEFAULT FALSE, 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE CASCADE
+);
+
+CREATE TABLE audit_logs (
+    id VARCHAR(255) NOT NULL PRIMARY KEY,
+    user_id VARCHAR(50) NOT NULL, 
+    file_id VARCHAR(255) NOT NULL, 
+    action ENUM('upload', 'download', 'delete', 'edit') NOT NULL, 
+    action_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
+    description TEXT,  
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE CASCADE
+);
+
+CREATE TABLE ocr_logs (
+    id VARCHAR(255) NOT NULL PRIMARY KEY,
+    file_id VARCHAR(255) NOT NULL,
+    status ENUM('pending', 'processing', 'completed', 'failed') DEFAULT 'pending',
+    result TEXT,
+    processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    error_message TEXT,
+    FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE CASCADE
+);
