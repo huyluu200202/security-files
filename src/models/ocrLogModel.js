@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../configs/database');
+const File = require('../models/fileModel');
 const moment = require('moment-timezone');
 const { v4: uuidv4 } = require('uuid');
 
@@ -10,8 +11,12 @@ const OCRLog = sequelize.define('OCRLog', {
         primaryKey: true,
     },
     file_id: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+            model: File,
+            key: 'id'
+        }
     },
     status: {
         type: DataTypes.ENUM('pending', 'processing', 'completed', 'failed'),
