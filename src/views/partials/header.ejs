@@ -5,9 +5,9 @@
             <li class="nav-item" id="login-link">
                 <a class="nav-link" href="/login">Login</a>
             </li>
-            <li class="nav-item" id="register-link">
+            <!-- <li class="nav-item" id="register-link">
                 <a class="nav-link" href="/register">Register</a>
-            </li>
+            </li> -->
             <li class="nav-item" id="user-info" style="display: none;">
                 <span class="nav-link" id="user-name"></span>
             </li>
@@ -36,14 +36,14 @@
     function updateNavbar() {
         if (token && fullname) {
             document.getElementById('login-link').style.display = 'none';
-            document.getElementById('register-link').style.display = 'none';
+            // document.getElementById('register-link').style.display = 'none';
             document.getElementById('user-info').style.display = 'block';
             document.getElementById('upload-link').style.display = 'block';
             document.getElementById('logout-link').style.display = 'block';
             document.getElementById('user-name').textContent = `Hello, ${fullname}`;
         } else {
             document.getElementById('login-link').style.display = 'block';
-            document.getElementById('register-link').style.display = 'block';
+            // document.getElementById('register-link').style.display = 'block';
             document.getElementById('user-info').style.display = 'none';
             document.getElementById('upload-link').style.display = 'none';
             document.getElementById('logout-link').style.display = 'none';

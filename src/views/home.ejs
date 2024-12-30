@@ -12,6 +12,16 @@
         body {
             padding-bottom: 50px;
         }
+
+        .modal-body img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .modal-body iframe {
+            width: 100%;
+            height: 400px;
+        }
     </style>
 </head>
 
@@ -32,11 +42,36 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <% if (files && files.length> 0) { %>
-                            <% files.forEach(file=> { %>
+                        <% if (files && files.length > 0) { %>
+                            <% files.forEach(file => { %>
                                 <tr>
                                     <td>
                                         <%= file.fileName %>
+                                        <% if (file.friendlyFileType.includes('Image')) { %>
+                                            <i class="fas fa-image" style="color: #007bff; cursor: pointer;" 
+                                               data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>" 
+                                               data-file-type="<%= file.friendlyFileType %>"></i>
+                                        <% } else if (file.friendlyFileType === 'PDF Document') { %>
+                                            <i class="fas fa-file-pdf" style="color: #d9534f; cursor: pointer;" 
+                                               data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>" 
+                                               data-file-type="<%= file.friendlyFileType %>"></i>
+                                        <% } else if (file.friendlyFileType === 'Word Document') { %>
+                                            <i class="fas fa-file-word" style="color: #007bff; cursor: pointer;" 
+                                               data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>" 
+                                               data-file-type="<%= file.friendlyFileType %>"></i>
+                                        <% } else if (file.friendlyFileType === 'Excel Spreadsheet') { %>
+                                            <i class="fas fa-file-excel" style="color: #28a745; cursor: pointer;" 
+                                               data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>" 
+                                               data-file-type="<%= file.friendlyFileType %>"></i>
+                                        <% } else if (file.friendlyFileType === 'PowerPoint Presentation') { %>
+                                            <i class="fa fa-file-powerpoint" style="color: #ff9900; cursor: pointer;" 
+                                               data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>" 
+                                               data-file-type="<%= file.friendlyFileType %>"></i>
+                                        <% } else { %>
+                                            <i class="fas fa-file" style="color: #6c757d; cursor: pointer;" 
+                                               data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>" 
+                                               data-file-type="<%= file.friendlyFileType %>"></i>
+                                        <% } %>
                                     </td>
                                     <td>
                                         <%= file.friendlyFileType %>
@@ -49,17 +84,17 @@
                                     </td>
                                     <td>
                                         <a href="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                            class="btn btn-primary btn-sm" download="<%= file.fileName %>">
+                                           class="btn btn-primary btn-sm" download="<%= file.fileName %>">
                                             <i class="fas fa-download"></i> Download
                                         </a>
                                     </td>
                                 </tr>
-                                <% }); %>
-                                    <% } else { %>
-                                        <tr>
-                                            <td colspan="5" class="text-center">No files uploaded yet.</td>
-                                        </tr>
-                                        <% } %>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="5" class="text-center">No files uploaded yet.</td>
+                            </tr>
+                        <% } %>
                     </tbody>
                 </table>
                 <div class="mt-4">
@@ -70,9 +105,58 @@
             </div>
         </div>
 
+        <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="previewModalLabel">File Preview</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="file-preview"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <%- include('partials/footer') %>
 
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+        <script>
+            document.querySelectorAll('.fas').forEach(icon => {
+                icon.addEventListener('click', function () {
+                    const filePath = this.getAttribute('data-file-path');
+                    const fileType = this.getAttribute('data-file-type');
+                    const previewContainer = document.getElementById('file-preview');
+        
+                    if (!filePath || !fileType) {
+                        console.error('File path or file type is missing');
+                        return;
+                    }
+        
+                    if (fileType.includes('Image')) {
+                        previewContainer.innerHTML = `<img src="${filePath}" alt="File Preview">`;
+                    } else if (fileType === 'PDF Document') {
+                        previewContainer.innerHTML = `<iframe src="${filePath}" width="100%" height="400px"></iframe>`;
+                    } else if (fileType === 'Word Document') {
+                        const googleDocsUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(filePath)}&embedded=true`;
+                        previewContainer.innerHTML = `<iframe src="${googleDocsUrl}" width="100%" height="400px"></iframe>`;
+                    } else if (fileType === 'Excel Spreadsheet') {
+                        const googleSheetsUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vT6rB5WkZp9eivUwp1L9cW5j1P1jt5f7-_yTj9h8jIMy4zQm5A1Wrxfz1BoKU4_k5hkt5YkD1gbwR9g/pub?output=html`;
+                        previewContainer.innerHTML = `<iframe src="${googleSheetsUrl}" width="100%" height="400px"></iframe>`;
+                    } else if (fileType === 'PowerPoint Presentation') {
+                        const googleSlidesUrl = `https://docs.google.com/presentation/d/e/2PACX-1vT6rB5WkZp9eivUwp1L9cW5j1P1jt5f7-_yTj9h8jIMy4zQm5A1Wrxfz1BoKU4_k5hkt5YkD1gbwR9g/pub?output=html`;
+                        previewContainer.innerHTML = `<iframe src="${googleSlidesUrl}" width="100%" height="400px"></iframe>`;
+                    } else {
+                        previewContainer.innerHTML = `<p>No preview available for this file type. Please download it.</p>`;
+                    }
+                    const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+                    modal.show();
+                });
+            });
+        </script>
+        
 </body>
 
 </html>

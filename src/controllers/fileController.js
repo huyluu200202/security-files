@@ -7,6 +7,7 @@ const path = require('path');
 const mimeTypeMap = {
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Word Document',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'Excel Spreadsheet',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PowerPoint Presentation',
     'application/pdf': 'PDF Document',
     'application/gzip': 'GZip Document',
     'text/plain': 'Text File',
