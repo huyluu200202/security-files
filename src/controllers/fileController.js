@@ -68,14 +68,20 @@ exports.uploadFile = async (req, res) => {
         }
 
         const { originalname, mimetype, size } = req.file;
-        const fileName = Buffer.from(originalname, 'latin1').toString('utf8');
+        const fileName = Buffer.from(originalname, 'latin1').toString('utf8'); 
 
         const friendlyFileType = getFriendlyFileType(mimetype);
         const formattedFileSize = convertFileSize(size);
 
+        // Ensure the file is saved with the correct name
+        const filePath = path.join(__dirname, '../uploads', fileName);
+        
+        // Save the file using its original name instead of userId
+        fs.renameSync(req.file.path, filePath); // This will rename the file to the original name
+
         const newFile = await File.create({
             fileName,
-            filePath: req.file.path,
+            filePath, // Save the correct path in the database
             friendlyFileType,
             formattedFileSize,
             user_id: userId
@@ -94,6 +100,8 @@ exports.uploadFile = async (req, res) => {
         res.status(500).json({ error: 'File upload failed' });
     }
 };
+
+
 exports.downloadFile = async (req, res) => {
     try {
         const userId = req.user.userId;  
@@ -129,17 +137,24 @@ exports.downloadFile = async (req, res) => {
         res.status(500).json({ error: 'File download failed' });
     }
 };
-
 exports.deleteFile = async (req, res) => {
     try {
         const userId = req.user.userId;
-        const { fileId } = req.params;
+        const { fileId } = req.params; // Get fileId from params
 
+        // Find the file in the database
         const file = await File.findOne({ where: { id: fileId } });
         if (!file) {
             return res.status(404).json({ message: 'File not found' });
         }
 
+        // Construct the correct file path using the file's name stored in the database
+        const filePath = path.join(__dirname, '../uploads', file.fileName);
+
+        // Delete the file from the file system
+        await fs.promises.unlink(filePath);  // Use fs.promises for async/await
+
+        // Log the file deletion action
         await AuditLog.create({
             user_id: userId,
             file_id: file.id,
@@ -147,39 +162,14 @@ exports.deleteFile = async (req, res) => {
             description: `File ${file.fileName} deleted.`,
         });
 
+        // Delete the file record from the database
         await file.destroy();
 
+        // Return a success response
         res.status(200).json({ message: 'File deleted successfully' });
+
     } catch (error) {
         console.error('File deletion failed:', error);
         res.status(500).json({ error: 'File deletion failed' });
-    }
-};
-
-exports.editFile = async (req, res) => {
-    try {
-        const userId = req.user.userId;
-        const { fileId } = req.params;
-        const { newFileName } = req.body;
-
-        const file = await File.findOne({ where: { id: fileId } });
-        if (!file) {
-            return res.status(404).json({ message: 'File not found' });
-        }
-
-        await AuditLog.create({
-            user_id: userId,
-            file_id: file.id,
-            action: 'edit',
-            description: `File ${file.fileName} edited. New name: ${newFileName}`,
-        });
-
-        file.fileName = newFileName;
-        await file.save();
-
-        res.status(200).json({ message: 'File updated successfully', file });
-    } catch (error) {
-        console.error('File edit failed:', error);
-        res.status(500).json({ error: 'File edit failed' });
     }
 };

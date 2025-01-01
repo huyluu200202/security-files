@@ -56,14 +56,15 @@
 
         fetch('/logout', {
             method: 'GET',
-            credentials: 'same-origin'  
+            credentials: 'same-origin'
         }).then(() => {
-            window.location.href = '/login'; 
+            window.location.href = '/login';
         }).catch((error) => {
             console.error('Logout error:', error);
         });
     });
     updateNavbar();
+
 </script>
 
 <style>
