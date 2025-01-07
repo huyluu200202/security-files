@@ -4,6 +4,11 @@ const File = require('../models/fileModel');
 
 exports.assignPermission = async (req, res) => {
     try {
+        const userRole = req.user.role;
+        if (userRole !== 'admin') {
+            return res.status(403).json({ message: 'Permission denied: Action not allowed for non-admin users' });
+        }
+
         const { userId, fileId, can_view, can_download, can_edit } = req.body;
 
         const user = await User.findOne({ where: { id: userId } });
@@ -40,6 +45,11 @@ exports.assignPermission = async (req, res) => {
 
 exports.getPermissions = async (req, res) => {
     try {
+        const userRole = req.user.role;
+        if (userRole !== 'admin') {
+            return res.status(403).json({ message: 'Permission denied: Access restricted to admin users' });
+        }
+
         const permissions = await Permission.findAll({
             include: [User, File]
         });
@@ -53,6 +63,11 @@ exports.getPermissions = async (req, res) => {
 
 exports.deletePermission = async (req, res) => {
     try {
+        const userRole = req.user.role;
+        if (userRole !== 'admin') {
+            return res.status(403).json({ message: 'Permission denied: Deletion not allowed for non-admin users' });
+        }
+
         const { permissionId } = req.params;
 
         const permission = await Permission.findOne({ where: { id: permissionId } });
@@ -70,6 +85,11 @@ exports.deletePermission = async (req, res) => {
 
 exports.getUserPermissions = async (req, res) => {
     try {
+        const userRole = req.user.role;
+        if (userRole !== 'admin') {
+            return res.status(403).json({ message: 'Permission denied: Access restricted to admin users' });
+        }
+
         const { userId } = req.params;
 
         const permissions = await Permission.findAll({

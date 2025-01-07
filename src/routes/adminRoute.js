@@ -5,7 +5,7 @@ const authorizeAdmin = require('../middlewares/authorizeAdmin');
 const User = require('../models/userModel');
 const File = require('../models/fileModel');
 
-router.get('/permissions', async (req, res) => {
+router.get('/permissions', authorizeAdmin, async (req, res) => {
     try {
         const users = await User.findAll(); 
         const files = await File.findAll(); 

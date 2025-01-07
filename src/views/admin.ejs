@@ -108,15 +108,10 @@
 
             const token = getCookie('token'); 
 
-            // if (!token) {
-            //     alert('You are not authorized. Please log in.');
-            //     window.location.href = '/login'; 
-            //     return;
-            // }
-
             try {
-                const response = await fetch('/permissions', {
+                const response = await fetch('/api/permissions', {
                     method: 'POST',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`

@@ -22,7 +22,6 @@
             width: 100%;
             height: 400px;
         }
-
     </style>
 </head>
 
@@ -50,7 +49,7 @@
                                     <td>
                                         <%= file.fileName %>
                                             <% if (file.friendlyFileType.includes('Image')) { %>
-                                                <i class="fas fa-image" style="color: #007bff; cursor: pointer;"
+                                                <i class="fas fa-image" style="color: #15e018; cursor: pointer;"
                                                     data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
                                                     data-file-type="<%= file.friendlyFileType %>"></i>
                                                 <% } else if (file.friendlyFileType==='PDF Document' ) { %>
@@ -70,16 +69,27 @@
                                                             <% } else if
                                                                 (file.friendlyFileType==='PowerPoint Presentation' ) {
                                                                 %>
-                                                                <i class="fa fa-file-powerpoint"
+                                                                <i class="fas fa-file-powerpoint"
                                                                     style="color: #ff9900; cursor: pointer;"
                                                                     data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
                                                                     data-file-type="<%= file.friendlyFileType %>"></i>
-                                                                <% } else { %>
-                                                                    <i class="fas fa-file"
-                                                                        style="color: #6c757d; cursor: pointer;"
+                                                                <% } else if (file.friendlyFileType==='MP3 Audio' ) { %>
+                                                                    <i class="fas fa-file-audio"
+                                                                        style="color: #d310e9; cursor: pointer;"
                                                                         data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
                                                                         data-file-type="<%= file.friendlyFileType %>"></i>
-                                                                    <% } %>
+                                                                    <% } else if (file.friendlyFileType==='MP4 Video' )
+                                                                        { %>
+                                                                        <i class="fas fa-film"
+                                                                            style="color: #e37c0f; cursor: pointer;"
+                                                                            data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
+                                                                            data-file-type="<%= file.friendlyFileType %>"></i>
+                                                                        <% } else { %>
+                                                                            <i class="fas fa-file"
+                                                                                style="color: #6c757d; cursor: pointer;"
+                                                                                data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
+                                                                                data-file-type="<%= file.friendlyFileType %>"></i>
+                                                                            <% } %>
                                     </td>
                                     <td>
                                         <%= file.friendlyFileType %>
@@ -134,7 +144,7 @@
             </div>
         </div>
 
-    <%- include('partials/footer') %>
+        <%- include('partials/footer') %>
 
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -144,12 +154,12 @@
                         const filePath = this.getAttribute('data-file-path');
                         const fileType = this.getAttribute('data-file-type');
                         const previewContainer = document.getElementById('file-preview');
-
+            
                         if (!filePath || !fileType) {
                             console.error('File path or file type is missing');
                             return;
                         }
-
+            
                         if (fileType.includes('Image')) {
                             previewContainer.innerHTML = `<img src="${filePath}" alt="File Preview">`;
                         } else if (fileType === 'PDF Document') {
@@ -163,39 +173,65 @@
                         } else if (fileType === 'PowerPoint Presentation') {
                             const googleSlidesUrl = `https://docs.google.com/presentation/d/e/2PACX-1vT6rB5WkZp9eivUwp1L9cW5j1P1jt5f7-_yTj9h8jIMy4zQm5A1Wrxfz1BoKU4_k5hkt5YkD1gbwR9g/pub?output=html`;
                             previewContainer.innerHTML = `<iframe src="${googleSlidesUrl}" width="100%" height="400px"></iframe>`;
+                        } else if (fileType === 'MP3 Audio') {
+                            previewContainer.innerHTML = `<audio controls id="audio-player">
+                                                          <source src="${filePath}" type="audio/mpeg">
+                                                          Your browser does not support the audio element.
+                                                      </audio>`;
+                        } else if (fileType === 'MP4 Video') {
+                            previewContainer.innerHTML = `<video controls id="video-player" width="100%">
+                                                          <source src="${filePath}" type="video/mp4">
+                                                          Your browser does not support the video element.
+                                                      </video>`;
                         } else {
                             previewContainer.innerHTML = `<p>No preview available for this file type. Please download it.</p>`;
                         }
+            
                         const modal = new bootstrap.Modal(document.getElementById('previewModal'));
                         modal.show();
+
+                        const modalElement = document.getElementById('previewModal');
+                        modalElement.addEventListener('hidden.bs.modal', function () {
+                            const audioPlayer = document.getElementById('audio-player');
+                            const videoPlayer = document.getElementById('video-player');
+            
+                            if (audioPlayer) {
+                                audioPlayer.pause();  
+                                audioPlayer.currentTime = 0;  
+                            }
+            
+                            if (videoPlayer) {
+                                videoPlayer.pause();  
+                                videoPlayer.currentTime = 0;  
+                            }
+                        });
                     });
                 });
-
+            
                 function confirmDelete(fileName) {
                     const confirmation = confirm('Are you sure you want to delete the file: ' + decodeURIComponent(fileName) + '?');
                     return confirmation;
                 }
-
+            
                 document.addEventListener('DOMContentLoaded', function () {
-                const role = localStorage.getItem('role');
-                console.log('Role from localStorage:', role);
-                if (role === 'sinhvien') {
-                    const uploadSection = document.getElementById('upload-section');
-                    const deleteColumns = document.querySelectorAll('.delete-column');
-
-                    if (uploadSection) {
-                        uploadSection.style.display = 'none';
-                        console.log('Upload section hidden');
+                    const role = localStorage.getItem('role');
+                    console.log('Role from localStorage:', role);
+                    if (role === 'sinhvien') {
+                        const uploadSection = document.getElementById('upload-section');
+                        const deleteColumns = document.querySelectorAll('.delete-column');
+            
+                        if (uploadSection) {
+                            uploadSection.style.display = 'none';
+                            console.log('Upload section hidden');
+                        }
+                        deleteColumns.forEach(column => {
+                            column.style.display = 'none';
+                            console.log('Delete column hidden');
+                        });
                     }
-                    deleteColumns.forEach(column => {
-                        column.style.display = 'none';
-                        console.log('Delete column hidden');
-                    });
-                }
-            });
-
+                });
             </script>
-
+            
 </body>
 
 </html>

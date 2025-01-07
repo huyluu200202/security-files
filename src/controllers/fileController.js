@@ -15,6 +15,8 @@ const mimeTypeMap = {
     'image/png': 'PNG Image',
     'image/gif': 'GIF Image',
     'application/zip': 'ZIP Archive',
+    'audio/mpeg': 'MP3 Audio',              
+    'video/mp4': 'MP4 Video'
 };
 
 const convertFileSize = (size) => {
@@ -73,18 +75,18 @@ exports.uploadFile = async (req, res) => {
         }
 
         const { originalname, mimetype, size } = req.file;
-        const fileName = Buffer.from(originalname, 'latin1').toString('utf8'); 
+        const fileName = Buffer.from(originalname, 'latin1').toString('utf8');
 
         const friendlyFileType = getFriendlyFileType(mimetype);
         const formattedFileSize = convertFileSize(size);
 
         const filePath = path.join(__dirname, '../uploads', fileName);
 
-        fs.renameSync(req.file.path, filePath); 
+        fs.renameSync(req.file.path, filePath);
 
         const newFile = await File.create({
             fileName,
-            filePath, 
+            filePath,
             friendlyFileType,
             formattedFileSize,
             user_id: userId
@@ -105,15 +107,15 @@ exports.uploadFile = async (req, res) => {
 };
 exports.downloadFile = async (req, res) => {
     try {
-        const userId = req.user.userId;  
+        const userId = req.user.userId;
         const fileName = req.params.filename;
         const filePath = path.join(__dirname, '../uploads', fileName);
 
-        console.log('Searching for file with name:', fileName);  
+        console.log('Searching for file with name:', fileName);
 
         const file = await File.findOne({ where: { fileName } });
         if (!file) {
-            console.error('File not found in database:', fileName);  
+            console.error('File not found in database:', fileName);
             return res.status(404).json({ message: 'File not found' });
         }
 
@@ -124,24 +126,24 @@ exports.downloadFile = async (req, res) => {
             description: `File ${fileName} downloaded.`,
         });
 
-        console.log('Download log created successfully');  
+        console.log('Download log created successfully');
 
         res.download(filePath, fileName, (err) => {
             if (err) {
-                console.error('Error during file download:', err);  
+                console.error('Error during file download:', err);
                 return res.status(500).send('Error downloading the file');
             }
-            console.log('File download initiated successfully');  
+            console.log('File download initiated successfully');
         });
     } catch (error) {
-        console.error('Error in downloadFile method:', error); 
+        console.error('Error in downloadFile method:', error);
         res.status(500).json({ error: 'File download failed' });
     }
 };
 exports.deleteFile = async (req, res) => {
     try {
         const userId = req.user.userId;
-        const { fileId } = req.params; 
+        const { fileId } = req.params;
 
         const file = await File.findOne({ where: { id: fileId } });
         if (!file) {
@@ -150,7 +152,7 @@ exports.deleteFile = async (req, res) => {
 
         const filePath = path.join(__dirname, '../uploads', file.fileName);
 
-        await fs.promises.unlink(filePath);  
+        await fs.promises.unlink(filePath);
 
         await AuditLog.create({
             user_id: userId,

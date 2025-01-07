@@ -8,14 +8,14 @@ router.post('/api/login', userController.login);
 router.get('/', async (req, res) => {
     try {
         let token = req.cookies.token || null;
-        
+
         if (!token) {
-            return res.redirect('/login');  
+            return res.redirect('/login');
         }
 
-        const files = await File.findAll();  
-        res.render('home', { 
-            files, 
+        const files = await File.findAll();
+        res.render('home', {
+            files,
             token
         });
     } catch (error) {
@@ -25,13 +25,13 @@ router.get('/', async (req, res) => {
 
 router.get('/login', (req, res) => {
     if (req.cookies.token) {
-        return res.redirect('/');  
+        return res.redirect('/');
     }
     res.render('login');
 });
 
 router.get('/logout', (req, res) => {
-    res.clearCookie('token', { path: '/' });  
+    res.clearCookie('token', { path: '/' });
     res.redirect('/login');
 });
 
