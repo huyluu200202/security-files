@@ -2,40 +2,6 @@ const User = require('../models/userModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-// exports.register = async (req, res) => {
-//     const { fullname, username, email, password, role } = req.body;
-
-//     try {
-//         const existingUsername = await User.findOne({ where: { username } });
-//         if (existingUsername) {
-//             return res.status(400).json({ message: 'Username is already in use' });
-//         }
-
-//         const existingEmail = await User.findOne({ where: { email } });
-//         if (existingEmail) {
-//             return res.status(400).json({ message: 'Email is already in use' });
-//         }
-
-//         const hashedPassword = await bcrypt.hash(password, 10);
-
-//         const newUser = await User.create({
-//             fullname,
-//             username,
-//             email,
-//             password: hashedPassword,
-//             role,
-//         });
-
-//         res.status(201).json({
-//             message: 'Register successful',
-//             user: { username: newUser.username, email: newUser.email }
-//         });
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ message: 'An error occurred while registering user', error: error.message });
-//     }
-// };
-
 exports.login = async (req, res) => {
     const { username, password } = req.body;
 
@@ -65,7 +31,7 @@ exports.login = async (req, res) => {
         res.status(200).json({
             message: 'Login successful',
             token,
-            user: { username: user.username, fullname: user.fullname }
+            user: { username: user.username, fullname: user.fullname, role: user.role }
         });
     } catch (error) {
         console.error(error);

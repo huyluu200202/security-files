@@ -3,7 +3,6 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 const File = require('../models/fileModel');
 
-// router.post('/api/register', userController.register);
 router.post('/api/login', userController.login);
 
 router.get('/', async (req, res) => {
@@ -30,13 +29,6 @@ router.get('/login', (req, res) => {
     }
     res.render('login');
 });
-
-// router.get('/register', (req, res) => {
-//     if (req.cookies.token) {
-//         return res.redirect('/'); 
-//     }
-//     res.render('register');
-// });
 
 router.get('/logout', (req, res) => {
     res.clearCookie('token', { path: '/' });  

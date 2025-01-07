@@ -61,6 +61,7 @@
         if (data.token) {
           localStorage.setItem('token', data.token);
           localStorage.setItem('fullname', data.user.fullname);
+          localStorage.setItem('role', data.user.role);
           window.location.href = '/';
         } else {
           alert('Login failed: ' + data.message); 

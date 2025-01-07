@@ -22,21 +22,38 @@ const initializeAdminAccount = async () => {
             console.log('Admin account already exists.');
         }
 
-        const userExists = await User.findOne({ where: { username: 'giangvien1' } });
+        const userExists = await User.findOne({ where: { username: 'giangvien2' } });
         if (!userExists) {
             const hashedUserPassword = await bcrypt.hash('123456', 10);
 
             await User.create({
                 id: uuidv4(),
-                fullname: 'Giang Vien 1',
-                username: 'giangvien1',
-                email: 'giangvien1@gmail.com',
+                fullname: 'Giang Vien 2',
+                username: 'giangvien2',
+                email: 'giangvien2@gmail.com',
                 password: hashedUserPassword,
                 role: 'giangvien',
             });
             // console.log('Giang Vien 1 account created successfully!');
         } else {
             // console.log('Giang Vien 1 account already exists.');
+        }
+
+        const studentExists = await User.findOne({ where: { username: 'sinhvien2' } });
+        if (!studentExists) {
+            const hashedUserPassword = await bcrypt.hash('123456', 10);
+
+            await User.create({
+                id: uuidv4(),
+                fullname: 'Sinh Vien 2',
+                username: 'sinhvien2',
+                email: 'sinhvien2@gmail.com',
+                password: hashedUserPassword,
+                role: 'sinhvien',
+            });
+            // console.log('Sinh Vien 1 account created successfully!');
+        } else {
+            // console.log('Sinh Vien 1 account already exists.');
         }
     } catch (error) {
         console.error('Error creating accounts:', error);

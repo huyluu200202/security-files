@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const methodOverride = require('method-override');
 const userRoutes = require('./routes/userRoute');
 const fileRoutes = require('./routes/fileRoute');
+const adminRoute = require('./routes/adminRoute');
 const path = require('path');
 const initializeAdminAccount = require('./utils/initializeAdmin');
 
@@ -22,6 +23,7 @@ initializeAdminAccount();
 
 app.use('/', fileRoutes);
 app.use('/', userRoutes);
+app.use('/', adminRoute);
 
 app.listen(3000, () => {
   console.log('Server is running on http://localhost:3000');

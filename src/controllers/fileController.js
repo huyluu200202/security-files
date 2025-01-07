@@ -61,6 +61,11 @@ exports.getFilesName = async (req, res) => {
 exports.uploadFile = async (req, res) => {
     try {
         const userId = req.user.userId;
+        const userRole = req.user.role;
+
+        if (userRole === 'sinhvien') {
+            return res.status(403).json({ message: 'Permission denied: Upload not allowed for students' });
+        }
 
         const user = await User.findOne({ where: { id: userId } });
         if (!user) {
@@ -73,15 +78,13 @@ exports.uploadFile = async (req, res) => {
         const friendlyFileType = getFriendlyFileType(mimetype);
         const formattedFileSize = convertFileSize(size);
 
-        // Ensure the file is saved with the correct name
         const filePath = path.join(__dirname, '../uploads', fileName);
-        
-        // Save the file using its original name instead of userId
-        fs.renameSync(req.file.path, filePath); // This will rename the file to the original name
+
+        fs.renameSync(req.file.path, filePath); 
 
         const newFile = await File.create({
             fileName,
-            filePath, // Save the correct path in the database
+            filePath, 
             friendlyFileType,
             formattedFileSize,
             user_id: userId
@@ -100,8 +103,6 @@ exports.uploadFile = async (req, res) => {
         res.status(500).json({ error: 'File upload failed' });
     }
 };
-
-
 exports.downloadFile = async (req, res) => {
     try {
         const userId = req.user.userId;  
@@ -140,21 +141,17 @@ exports.downloadFile = async (req, res) => {
 exports.deleteFile = async (req, res) => {
     try {
         const userId = req.user.userId;
-        const { fileId } = req.params; // Get fileId from params
+        const { fileId } = req.params; 
 
-        // Find the file in the database
         const file = await File.findOne({ where: { id: fileId } });
         if (!file) {
             return res.status(404).json({ message: 'File not found' });
         }
 
-        // Construct the correct file path using the file's name stored in the database
         const filePath = path.join(__dirname, '../uploads', file.fileName);
 
-        // Delete the file from the file system
-        await fs.promises.unlink(filePath);  // Use fs.promises for async/await
+        await fs.promises.unlink(filePath);  
 
-        // Log the file deletion action
         await AuditLog.create({
             user_id: userId,
             file_id: file.id,
@@ -162,10 +159,8 @@ exports.deleteFile = async (req, res) => {
             description: `File ${file.fileName} deleted.`,
         });
 
-        // Delete the file record from the database
         await file.destroy();
 
-        // Return a success response
         res.status(200).json({ message: 'File deleted successfully' });
 
     } catch (error) {

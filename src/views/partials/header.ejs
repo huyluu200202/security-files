@@ -5,14 +5,14 @@
             <li class="nav-item" id="login-link">
                 <a class="nav-link" href="/login">Login</a>
             </li>
-            <!-- <li class="nav-item" id="register-link">
-                <a class="nav-link" href="/register">Register</a>
-            </li> -->
             <li class="nav-item" id="user-info" style="display: none;">
                 <span class="nav-link" id="user-name"></span>
             </li>
             <li class="nav-item" id="upload-link" style="display: none;">
                 <a class="nav-link" href="/upload">Upload File</a>
+            </li>
+            <li class="nav-item" id="admin-link" style="display: none;">
+                <a class="nav-link" href="/permissions">Manage Users</a>
             </li>
             <li class="nav-item" id="logout-link" style="display: none;">
                 <a class="nav-link" href="#" id="logout-btn">Logout</a>
@@ -32,20 +32,31 @@
 
     let token = getFromLocalStorage('token');
     let fullname = getFromLocalStorage('fullname');
+    let role = getFromLocalStorage('role');
 
     function updateNavbar() {
         if (token && fullname) {
             document.getElementById('login-link').style.display = 'none';
-            // document.getElementById('register-link').style.display = 'none';
             document.getElementById('user-info').style.display = 'block';
-            document.getElementById('upload-link').style.display = 'block';
             document.getElementById('logout-link').style.display = 'block';
             document.getElementById('user-name').textContent = `Hello, ${fullname}`;
+            
+            if (role !== 'sinhvien') {
+                document.getElementById('upload-link').style.display = 'block';
+            } else {
+                document.getElementById('upload-link').style.display = 'none';
+            }
+
+            if (role === 'admin') {
+                document.getElementById('admin-link').style.display = 'block';
+            } else {
+                document.getElementById('admin-link').style.display = 'none';
+            }
         } else {
             document.getElementById('login-link').style.display = 'block';
-            // document.getElementById('register-link').style.display = 'block';
             document.getElementById('user-info').style.display = 'none';
             document.getElementById('upload-link').style.display = 'none';
+            document.getElementById('admin-link').style.display = 'none';
             document.getElementById('logout-link').style.display = 'none';
         }
     }
@@ -53,6 +64,7 @@
     document.getElementById('logout-btn')?.addEventListener('click', function () {
         localStorage.removeItem('token');
         localStorage.removeItem('fullname');
+        localStorage.removeItem('role');
 
         fetch('/logout', {
             method: 'GET',
@@ -64,7 +76,6 @@
         });
     });
     updateNavbar();
-
 </script>
 
 <style>
