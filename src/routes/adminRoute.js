@@ -22,6 +22,6 @@ router.get('/permissions/list', authorizeAdmin, adminController.getPermissions);
 
 router.get('/permissions/user/:userId', authorizeAdmin, adminController.getUserPermissions);
 
-router.delete('/api/permissions/:permissionId', authorizeAdmin, adminController.deletePermission);
+router.delete('/api/users/:userId', authorizeAdmin, adminController.deleteUser);
 
 module.exports = router;

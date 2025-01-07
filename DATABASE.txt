@@ -1,9 +1,7 @@
--- Drop and recreate the database
 DROP DATABASE IF EXISTS `Security_Files`;
 CREATE DATABASE Security_Files;
 USE Security_Files;
 
--- Create the users table
 CREATE TABLE users (
     id VARCHAR(50) PRIMARY KEY, 
     fullname VARCHAR(255) NOT NULL,
@@ -15,7 +13,6 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Create the files table
 CREATE TABLE files (
     id VARCHAR(255) NOT NULL PRIMARY KEY,
     fileName VARCHAR(255) NOT NULL,
@@ -29,21 +26,20 @@ CREATE TABLE files (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Create the permissions table
 CREATE TABLE permissions (
     id VARCHAR(255) NOT NULL PRIMARY KEY,
-    user_id VARCHAR(50) NOT NULL,  
-    file_id VARCHAR(255) NOT NULL,  
-    can_view BOOLEAN DEFAULT FALSE,  
-    can_download BOOLEAN DEFAULT FALSE,  
-    can_edit BOOLEAN DEFAULT FALSE, 
+    user_id VARCHAR(50) NOT NULL,
+    file_id VARCHAR(255) NOT NULL,
+    can_view BOOLEAN DEFAULT FALSE,
+    can_download BOOLEAN DEFAULT FALSE,
+    can_edit BOOLEAN DEFAULT FALSE,
+    can_upload BOOLEAN DEFAULT FALSE,  
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE CASCADE
 );
 
--- Create the audit_logs table
 CREATE TABLE audit_logs (
     id VARCHAR(255) NOT NULL PRIMARY KEY,
     user_id VARCHAR(50) NOT NULL, 
@@ -55,7 +51,6 @@ CREATE TABLE audit_logs (
     FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE CASCADE
 );
 
--- Create the ocr_logs table
 CREATE TABLE ocr_logs (
     id VARCHAR(255) NOT NULL PRIMARY KEY,
     file_id VARCHAR(255) NOT NULL,

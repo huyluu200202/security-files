@@ -1,4 +1,5 @@
 const User = require('../models/userModel');
+const Permission = require('../models/permissionModel');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid'); 
 
@@ -8,7 +9,6 @@ const initializeAdminAccount = async () => {
         if (!adminExists) {
             const hashedPassword = await bcrypt.hash('123456a@A', 10); 
             
-            // Tạo tài khoản admin
             await User.create({
                 id: uuidv4(),
                 fullname: 'admin',          
@@ -22,39 +22,51 @@ const initializeAdminAccount = async () => {
             console.log('Admin account already exists.');
         }
 
-        const userExists = await User.findOne({ where: { username: 'giangvien2' } });
+        const userExists = await User.findOne({ where: { username: 'giangvien1' } });
         if (!userExists) {
             const hashedUserPassword = await bcrypt.hash('123456', 10);
-
-            await User.create({
+        
+            const newUser = await User.create({
                 id: uuidv4(),
-                fullname: 'Giang Vien 2',
-                username: 'giangvien2',
-                email: 'giangvien2@gmail.com',
+                fullname: 'Giang Vien 1',
+                username: 'giangvien1',
+                email: 'giangvien1@gmail.com',
                 password: hashedUserPassword,
                 role: 'giangvien',
             });
-            // console.log('Giang Vien 1 account created successfully!');
-        } else {
-            // console.log('Giang Vien 1 account already exists.');
-        }
-
-        const studentExists = await User.findOne({ where: { username: 'sinhvien2' } });
+        
+            // await Permission.create({
+            //     user_id: newUser.id,
+            //     file_id: null,  
+            //     can_view: false,
+            //     can_download: false,
+            //     can_edit: false,
+            //     can_upload: false,
+            // });
+        } 
+        
+        const studentExists = await User.findOne({ where: { username: 'sinhvien1' } });
         if (!studentExists) {
             const hashedUserPassword = await bcrypt.hash('123456', 10);
-
-            await User.create({
+        
+            const newStudent = await User.create({
                 id: uuidv4(),
-                fullname: 'Sinh Vien 2',
-                username: 'sinhvien2',
-                email: 'sinhvien2@gmail.com',
+                fullname: 'Sinh Vien 1',
+                username: 'sinhvien1',
+                email: 'sinhvien1@gmail.com',
                 password: hashedUserPassword,
                 role: 'sinhvien',
             });
-            // console.log('Sinh Vien 1 account created successfully!');
-        } else {
-            // console.log('Sinh Vien 1 account already exists.');
-        }
+        
+            // await Permission.create({
+            //     user_id: newStudent.id,
+            //     file_id: null,  
+            //     can_view: false,
+            //     can_download: false,
+            //     can_edit: false,
+            //     can_upload: false,  
+            // });
+        } 
     } catch (error) {
         console.error('Error creating accounts:', error);
     }
