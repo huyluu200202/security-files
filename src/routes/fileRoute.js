@@ -5,6 +5,7 @@ const fs = require('fs');
 const fileController = require('../controllers/fileController');
 const authenticate = require('../middlewares/authenticate');
 const File = require('../models/fileModel'); 
+const checkPermissions = require('../middlewares/checkPermissions');
 
 const router = express.Router();
 
@@ -24,8 +25,8 @@ router.get('/upload', (req, res) => {
     res.render('upload');
 });
 
-router.get('/uploads/:filename', (req, res) => {
-    const filePath = path.join(__dirname, '../uploads', req.params.filename); 
+router.get('/uploads/:filename', authenticate, checkPermissions('can_download'), async (req, res) => {
+    const filePath = path.join(__dirname, '../uploads', req.params.filename);
 
     fs.access(filePath, fs.constants.F_OK, (err) => {
         if (err) {
@@ -58,5 +59,8 @@ router.get('/uploads/delete/:fileName', async (req, res) => {
 });
 
 router.post('/api/upload', authenticate, upload.single('file'), fileController.uploadFile);
+
+router.get('/api/view/:fileId', authenticate, checkPermissions('can_view'), fileController.viewFile);
+router.get('/api/download/:filename', authenticate, checkPermissions('can_download'), fileController.downloadFile);
 
 module.exports = router;

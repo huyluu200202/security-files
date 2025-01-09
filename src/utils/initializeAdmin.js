@@ -1,6 +1,6 @@
 const User = require('../models/userModel');
-const Permission = require('../models/permissionModel');
 const File = require('../models/fileModel');
+const Permission = require('../models/permissionModel');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
@@ -8,10 +8,12 @@ const fs = require('fs');
 
 const initializeAdminAccount = async () => {
     try {
+        // Kiểm tra xem tài khoản admin đã tồn tại chưa
         const adminExists = await User.findOne({ where: { username: 'admin' } });
         let adminUser;
 
         if (!adminExists) {
+            // Nếu không có, tạo tài khoản admin mới
             const hashedPassword = await bcrypt.hash('123456a@A', 10);
 
             adminUser = await User.create({
@@ -22,10 +24,17 @@ const initializeAdminAccount = async () => {
                 password: hashedPassword,
                 role: 'admin',
             });
+
+            console.log('Admin account created!');
         } else {
+            // Nếu đã có tài khoản admin, sử dụng tài khoản đã có
             adminUser = adminExists;
+            console.log('Admin account already exists!');
         }
 
+        const adminUserId = adminUser.id; // Lấy ID của admin
+
+        // Tạo file mặc định nếu chưa có
         const defaultFileExists = await File.findOne({ where: { fileName: 'default_file.txt' } });
         let defaultFile;
 
@@ -43,12 +52,15 @@ const initializeAdminAccount = async () => {
                 filePath: defaultFilePath,
                 friendlyFileType: 'Text File',
                 formattedFileSize: '0 KB',
-                user_id: adminUser.id, 
+                user_id: adminUserId, // Liên kết file với admin
             });
+
+            console.log('Default file created!');
         } else {
             defaultFile = defaultFileExists;
         }
 
+        // Kiểm tra và tạo tài khoản giảng viên nếu chưa có
         const teacherExists = await User.findOne({ where: { username: 'giangvien1' } });
         if (!teacherExists) {
             const hashedTeacherPassword = await bcrypt.hash('123456', 10);
@@ -64,14 +76,16 @@ const initializeAdminAccount = async () => {
 
             await Permission.create({
                 user_id: teacherUser.id,
-                file_id: defaultFile.id, 
+                file_id: defaultFile.id,
                 can_view: false,
                 can_download: false,
                 can_edit: false,
-                can_upload: false,
             });
+
+            console.log('Teacher account created!');
         }
 
+        // Kiểm tra và tạo tài khoản sinh viên nếu chưa có
         const studentExists = await User.findOne({ where: { username: 'sinhvien1' } });
         if (!studentExists) {
             const hashedStudentPassword = await bcrypt.hash('123456', 10);
@@ -87,13 +101,15 @@ const initializeAdminAccount = async () => {
 
             await Permission.create({
                 user_id: studentUser.id,
-                file_id: defaultFile.id, 
+                file_id: defaultFile.id,
                 can_view: false,
                 can_download: false,
                 can_edit: false,
-                can_upload: false,
             });
+
+            console.log('Student account created!');
         }
+
     } catch (error) {
         console.error(error);
     }

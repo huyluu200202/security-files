@@ -1,6 +1,7 @@
 const File = require('../models/fileModel');
 const User = require('../models/userModel');
 const AuditLog = require('../models/auditLogModel');
+const Permission = require('../models/permissionModel');
 const fs = require('fs');
 const path = require('path');
 
@@ -60,6 +61,7 @@ exports.getFilesName = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
+
 exports.uploadFile = async (req, res) => {
     try {
         const userId = req.user.userId;
@@ -105,41 +107,76 @@ exports.uploadFile = async (req, res) => {
         res.status(500).json({ error: 'File upload failed' });
     }
 };
-exports.downloadFile = async (req, res) => {
+exports.viewFile = async (req, res) => {
     try {
-        const userId = req.user.userId;
-        const fileName = req.params.filename;
-        const filePath = path.join(__dirname, '../uploads', fileName);
+        const fileId = req.params.fileId;
 
-        console.log('Searching for file with name:', fileName);
-
-        const file = await File.findOne({ where: { fileName } });
+        // Check if file exists
+        const file = await File.findOne({ where: { id: fileId } });
         if (!file) {
-            console.error('File not found in database:', fileName);
             return res.status(404).json({ message: 'File not found' });
         }
 
+        // Log the view action
         await AuditLog.create({
-            user_id: userId,
+            user_id: req.user.userId,
             file_id: file.id,
-            action: 'download',
-            description: `File ${fileName} downloaded.`,
+            action: 'view',
+            description: `File ${file.fileName} viewed.`,
         });
 
-        console.log('Download log created successfully');
+        // Return the file
+        const filePath = path.join(__dirname, '../uploads', file.fileName);
+        res.sendFile(filePath);
+    } catch (error) {
+        console.error('Error in viewFile method:', error);
+        res.status(500).json({ error: 'Failed to view file' });
+    }
+};
 
-        res.download(filePath, fileName, (err) => {
-            if (err) {
-                console.error('Error during file download:', err);
-                return res.status(500).send('Error downloading the file');
-            }
-            console.log('File download initiated successfully');
+exports.downloadFile = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const userRole = req.user.role;
+        const fileName = req.params.filename;
+        const filePath = path.join(__dirname, '../uploads', fileName);
+
+        const file = await File.findOne({ where: { fileName } });
+        if (!file) {
+            return res.status(404).json({ message: 'File not found' });
+        }
+
+        if (userRole === 'admin') {
+            return downloadFileAction(file);
+        }
+
+        const permission = await Permission.findOne({
+            where: { user_id: userId, file_id: file.id }
         });
+
+        if (!permission || !permission.can_download) {
+            return res.status(403).json({ message: 'Permission denied: You do not have download permissions.' });
+        }
+
+        return downloadFileAction(file);
+
+        async function downloadFileAction(file) {
+            await AuditLog.create({
+                user_id: userId,
+                file_id: file.id,
+                action: 'download',
+                description: `File ${fileName} downloaded.`,
+            });
+
+            res.download(filePath, fileName);
+        }
+
     } catch (error) {
         console.error('Error in downloadFile method:', error);
         res.status(500).json({ error: 'File download failed' });
     }
 };
+
 exports.deleteFile = async (req, res) => {
     try {
         const userId = req.user.userId;

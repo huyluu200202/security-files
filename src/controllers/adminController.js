@@ -37,37 +37,6 @@ exports.assignViewDownloadPermission = async (req, res) => {
         res.status(500).json({ error: 'Failed to assign view/download permissions' });
     }
 };
-
-exports.toggleUploadPermission = async (req, res) => {
-    try {
-        const { userId } = req.params;
-
-        const user = await User.findOne({ where: { id: userId } });
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        let permissions = await Permission.findAll({ where: { user_id: userId } });
-        if (permissions.length === 0) {
-            return res.status(404).json({ message: 'No permissions found for this user' });
-        }
-
-        const canUpload = !permissions[0].can_upload; 
-        await Promise.all(
-            permissions.map(async (perm) => {
-                perm.can_upload = canUpload;
-                await perm.save();
-            })
-        );
-
-        res.status(200).json({
-            message: `Upload permission has been ${canUpload ? 'enabled' : 'disabled'} for this user`,
-        });
-    } catch (error) {
-        console.error('Error toggling upload permission:', error);
-        res.status(500).json({ error: 'Failed to toggle upload permission' });
-    }
-};
 exports.deleteUser = async (req, res) => {
     try {
         const { userId } = req.params;

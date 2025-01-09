@@ -39,10 +39,6 @@ const Permission = sequelize.define('Permission', {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
     },
-    can_upload: { 
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-    },
     created_at: {
         type: DataTypes.DATE,
         defaultValue: () => moment().tz('Asia/Ho_Chi_Minh').toDate(),

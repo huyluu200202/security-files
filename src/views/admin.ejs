@@ -36,10 +36,6 @@
                                     onclick="openViewDownloadModal('<%= user.id %>', '<%= user.username %>')">
                                     Manage View/Download
                                 </button>
-                                <button class="btn btn-secondary btn-sm"
-                                    onclick="confirmToggleUpload('<%= user.id %>')">
-                                    Can Upload
-                                </button>
                                 <button class="btn btn-danger btn-sm" onclick="deleteUser('<%= user.id %>')">
                                     Delete User
                                 </button>
@@ -66,7 +62,9 @@
                             <label for="fileId" class="form-label">Select File</label>
                             <select class="form-control" id="fileId" name="fileId">
                                 <% files.forEach(file => { %>
-                                    <option value="<%= file.id %>"><%= file.fileName %></option>
+                                    <% if (file.user_id === adminUserId) { %> 
+                                        <option value="<%= file.id %>"><%= file.fileName %></option>
+                                    <% } %>
                                 <% }) %>
                             </select>
                         </div>
@@ -94,17 +92,6 @@
             document.getElementById('userId').value = userId;
             const modal = new bootstrap.Modal(document.getElementById('viewDownloadModal'));
             modal.show();
-        }
-
-        async function confirmToggleUpload(userId) {
-            if (confirm('Are you sure you want to toggle the upload permission for this user?')) {
-                const response = await fetch(`/api/permissions/toggle-upload/${userId}`, {
-                    method: 'POST',
-                });
-
-                const result = await response.json();
-                alert(result.message);
-            }
         }
 
         document.getElementById('viewDownloadForm').addEventListener('submit', async function (e) {
