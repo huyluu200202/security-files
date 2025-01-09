@@ -16,12 +16,8 @@ router.get('/permissions', authorizeAdmin, async (req, res) => {
     }
 });
 
-router.post('/api/permissions', authorizeAdmin, adminController.assignPermission);
-
-router.get('/permissions/list', authorizeAdmin, adminController.getPermissions);
-
-router.get('/permissions/user/:userId', authorizeAdmin, adminController.getUserPermissions);
-
+router.post('/api/permissions/view-download', authorizeAdmin, adminController.assignViewDownloadPermission);
 router.delete('/api/users/:userId', authorizeAdmin, adminController.deleteUser);
+router.post('/api/permissions/toggle-upload/:userId', authorizeAdmin, adminController.toggleUploadPermission);
 
 module.exports = router;
