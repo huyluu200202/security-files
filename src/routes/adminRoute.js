@@ -23,6 +23,8 @@ router.get('/permissions', authorizeAdmin, async (req, res) => {
     }
 });
 
+router.get('/api/permissions/view-download', adminController.checkViewDownloadPermission);
 router.post('/api/permissions/view-download', authorizeAdmin, adminController.assignViewDownloadPermission);
 router.delete('/api/users/:userId', authorizeAdmin, adminController.deleteUser);
+
 module.exports = router;

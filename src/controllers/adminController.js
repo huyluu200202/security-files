@@ -1,6 +1,7 @@
 const Permission = require('../models/permissionModel');
 const User = require('../models/userModel');
 const File = require('../models/fileModel');
+
 exports.assignViewDownloadPermission = async (req, res) => {
     try {
         const { userId, fileId, can_view, can_download } = req.body;
@@ -15,22 +16,27 @@ exports.assignViewDownloadPermission = async (req, res) => {
             return res.status(404).json({ message: 'File not found' });
         }
 
-        const [permission, created] = await Permission.findOrCreate({
-            where: { user_id: userId, file_id: fileId },
-            defaults: { can_view, can_download, can_upload: false }
+        const permission = await Permission.findOne({
+            where: { user_id: userId, file_id: fileId }
         });
 
-        if (!created) {
+        if (permission) {
             permission.can_view = can_view;
             permission.can_download = can_download;
-            await permission.save();
+
+            if (!can_view && !can_download) {
+                await permission.destroy();
+            } else {
+                await permission.save();
+            }
+        } else {
+            if (can_view || can_download) {
+                await Permission.create({ user_id: userId, file_id: fileId, can_view, can_download });
+            }
         }
 
         res.status(200).json({
-            message: created
-                ? 'View/Download permissions assigned successfully'
-                : 'View/Download permissions updated successfully',
-            permission,
+            message: permission ? 'Permissions updated successfully' : 'Permissions assigned successfully'
         });
     } catch (error) {
         console.error('Error assigning view/download permissions:', error);
@@ -53,5 +59,36 @@ exports.deleteUser = async (req, res) => {
     } catch (error) {
         console.error('Error deleting user:', error);
         res.status(500).json({ error: 'Failed to delete user' });
+    }
+};
+
+exports.checkViewDownloadPermission = async (req, res) => {
+    const { role, filePath } = req.query;
+
+    try {
+        const file = await File.findOne({ where: { fileName: filePath } });
+        if (!file) {
+            return res.status(404).json({ message: 'File not found' });
+        }
+
+        if (role === 'admin') {
+            return res.json({ can_view: true, can_download: true });
+        }
+
+        const permission = await Permission.findOne({
+            where: { user_id: role, file_id: file.id }
+        });
+
+        if (!permission) {
+            return res.json({ can_view: false, can_download: false });
+        }
+
+        res.json({
+            can_view: permission.can_view,
+            can_download: permission.can_download
+        });
+    } catch (error) {
+        console.error('Error checking permissions:', error);
+        res.status(500).json({ error: 'Failed to check permissions' });
     }
 };

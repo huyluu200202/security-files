@@ -52,7 +52,7 @@ const initializeAdminAccount = async () => {
                 filePath: defaultFilePath,
                 friendlyFileType: 'Text File',
                 formattedFileSize: '0 KB',
-                user_id: adminUserId, // Liên kết file với admin
+                user_id: adminUserId, 
             });
 
             console.log('Default file created!');
