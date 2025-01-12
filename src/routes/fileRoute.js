@@ -110,7 +110,6 @@ const path = require('path');
 const fs = require('fs');
 const fileController = require('../controllers/fileController');
 const authenticate = require('../middlewares/authenticate');
-const checkPermissions = require('../middlewares/checkPermissions');
 const File = require('../models/fileModel');
 
 const router = express.Router();
@@ -155,7 +154,7 @@ router.get('/uploads/delete/:fileName', async (req, res) => {
 
 router.post('/api/upload', authenticate, upload.single('file'), fileController.uploadFile);
 
-router.get('/api/view/:fileId', authenticate, checkPermissions, async (req, res) => {
+router.get('/api/view/:fileId', authenticate, async (req, res) => {
     try {
         const { fileId } = req.params;
 
@@ -171,7 +170,7 @@ router.get('/api/view/:fileId', authenticate, checkPermissions, async (req, res)
     }
 });
 
-router.get('/api/download/:filename', authenticate, checkPermissions, async (req, res) => {
+router.get('/api/download/:filename', authenticate, async (req, res) => {
     try {
         const { filename } = req.params;
 
@@ -184,6 +183,17 @@ router.get('/api/download/:filename', authenticate, checkPermissions, async (req
     } catch (error) {
         console.error('Error downloading file:', error.message);
         res.status(500).json({ error: 'Failed to download file' });
+    }
+});
+
+router.get('/api/public-files', authenticate, async (req, res) => {
+    try {
+        const publicFiles = await File.findAll({ where: { isPublic: true } });
+
+        res.json(publicFiles);
+    } catch (error) {
+        console.error('Error fetching public files:', error.message);
+        res.status(500).json({ error: 'Failed to fetch public files' });
     }
 });
 

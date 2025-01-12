@@ -57,15 +57,15 @@ const initializeAdminAccount = async () => {
             defaultFile = defaultFileExists;
         }
 
-        const teacherExists = await User.findOne({ where: { username: 'giangvien2' } });
+        const teacherExists = await User.findOne({ where: { username: 'giangvien1' } });
         if (!teacherExists) {
             const hashedTeacherPassword = await bcrypt.hash('123456', 10);
 
             const teacherUser = await User.create({
                 id: uuidv4(),
-                fullname: 'Giang Vien 2',
-                username: 'giangvien2',
-                email: 'giangvien2@gmail.com',
+                fullname: 'Giang Vien 1',
+                username: 'giangvien1',
+                email: 'giangvien1@gmail.com',
                 password: hashedTeacherPassword,
                 role: 'giangvien',
             });

@@ -59,6 +59,11 @@ const File = sequelize.define('File', {
             key: 'username', 
         },
     },
+    isPublic: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    
 }, {
     sequelize,
     tableName: 'files',

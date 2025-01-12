@@ -41,6 +41,25 @@ router.get('/adminFiles', authorizeAdmin, async (req, res) => {
     }
 });
 
+router.post('/api/make-public/:fileId', authorizeAdmin, async (req, res) => {
+    const { fileId } = req.params;
+
+    try {
+        const file = await File.findByPk(fileId);
+        if (!file) {
+            return res.status(404).json({ message: 'File not found' });
+        }
+
+        file.isPublic = !file.isPublic;
+        await file.save();
+
+        res.json({ message: 'File status updated successfully', isPublic: file.isPublic });
+    } catch (error) {
+        console.error('Error updating file status:', error.message);
+        res.status(500).json({ error: 'Failed to update file status' });
+    }
+});
+
 router.get('/api/permissions/view-download', adminController.checkViewDownloadPermission);
 router.post('/api/permissions/view-download', authorizeAdmin, adminController.assignViewDownloadPermission);
 router.delete('/api/users/:userId', authorizeAdmin, adminController.deleteUser);

@@ -8,6 +8,7 @@ router.post('/api/login', userController.login);
 router.get('/', async (req, res) => {
     try {
         let token = req.cookies.token || null;
+        const publicFiles = await File.findAll({ where: { isPublic: true } });
 
         if (!token) {
             return res.redirect('/login');
@@ -16,7 +17,8 @@ router.get('/', async (req, res) => {
         const files = await File.findAll();
         res.render('home', {
             files,
-            token
+            token,
+            publicFiles 
         });
     } catch (error) {
         res.status(500).json({ message: 'An error occurred', error: error.message });

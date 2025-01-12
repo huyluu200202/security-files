@@ -38,7 +38,7 @@
                             <th scope="col">File Type</th>
                             <th scope="col">File Size</th>
                             <th scope="col">Uploaded At</th>
-                            <th scope="col">Download</th>
+                            <th scope="col">Public File</th>
                             <th scope="col" class="delete-column">Delete</th>
                         </tr>
                     </thead>
@@ -105,10 +105,10 @@
                                             <%= new Date(file.uploadedAt).toLocaleString('en-GB') %>
                                         </td>
                                         <td>
-                                            <a href="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                class="btn btn-primary btn-sm" download="<%= file.fileName %>">
-                                                <i class="fas fa-download"></i> Download
-                                            </a>
+                                            <button class="btn btn-primary public-file-btn btn-sm m-0"
+                                                data-file-id="<%= file.id %>" data-is-public="<%= file.isPublic %>">
+                                                <%= file.isPublic ? 'Unpublic File' : 'Public File' %>
+                                            </button>
                                         </td>
                                         <td class="delete-column">
                                             <a href="/uploads/delete/<%= encodeURIComponent(file.fileName) %>"
@@ -230,6 +230,37 @@
                         });
                     }
                 });
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    document.querySelectorAll('.public-file-btn').forEach(button => {
+                        button.addEventListener('click', async function () {
+                            const fileId = this.getAttribute('data-file-id');
+                            const isPublic = this.getAttribute('data-is-public') === 'true';
+
+                            try {
+                                const response = await fetch(`/api/make-public/${fileId}`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                });
+
+                                const result = await response.json();
+                                if (response.ok) {
+                                    this.setAttribute('data-is-public', result.isPublic);
+                                    this.textContent = result.isPublic ? 'Unpublic File' : 'Public File';
+                                    alert('File status updated successfully!');
+                                } else {
+                                    alert(result.message || 'Failed to update file status');
+                                }
+                            } catch (error) {
+                                console.error('Error:', error);
+                                alert('An error occurred while updating file status.');
+                            }
+                        });
+                    });
+                });
+
             </script>
 
 </body>

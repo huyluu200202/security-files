@@ -24,6 +24,7 @@ CREATE TABLE files (
     ocrContent TEXT,
     user_id VARCHAR(50) NOT NULL,
     uploadedBy VARCHAR(255) NOT NULL,
+    isPublic BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (uploadedBy) REFERENCES users(username) ON DELETE CASCADE
 );

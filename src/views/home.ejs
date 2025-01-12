@@ -43,129 +43,58 @@
                             <th scope="col" class="delete-column">Delete</th>
                         </tr>
                     </thead>
-                    <!-- <tbody>
+                    <tbody>
                         <% if (files && files.length> 0) { %>
                             <% files.forEach(file=> { %>
-                              
-                                <tr>
-                                    <td>
-                                        <%= file.fileName %>
-                                            <% if (file.friendlyFileType.includes('Image')) { %>
-                                                <i class="fas fa-image" style="color: #15e018; cursor: pointer;"
-                                                    data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                    data-file-type="<%= file.friendlyFileType %>"></i>
-                                                <% } else if (file.friendlyFileType==='PDF Document' ) { %>
-                                                    <i class="fas fa-file-pdf" style="color: #d9534f; cursor: pointer;"
-                                                        data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                        data-file-type="<%= file.friendlyFileType %>"></i>
-                                                    <% } else if (file.friendlyFileType==='Word Document' ) { %>
-                                                        <i class="fas fa-file-word"
-                                                            style="color: #007bff; cursor: pointer;"
-                                                            data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                            data-file-type="<%= file.friendlyFileType %>"></i>
-                                                        <% } else if (file.friendlyFileType==='Excel Spreadsheet' ) { %>
-                                                            <i class="fas fa-file-excel"
-                                                                style="color: #28a745; cursor: pointer;"
-                                                                data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                data-file-type="<%= file.friendlyFileType %>"></i>
-                                                            <% } else if
-                                                                (file.friendlyFileType==='PowerPoint Presentation' ) {
-                                                                %>
-                                                                <i class="fas fa-file-powerpoint"
-                                                                    style="color: #ff9900; cursor: pointer;"
-                                                                    data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                    data-file-type="<%= file.friendlyFileType %>"></i>
-                                                                <% } else if (file.friendlyFileType==='MP3 Audio' ) { %>
-                                                                    <i class="fas fa-file-audio"
-                                                                        style="color: #d310e9; cursor: pointer;"
-                                                                        data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                        data-file-type="<%= file.friendlyFileType %>"></i>
-                                                                    <% } else if (file.friendlyFileType==='MP4 Video' )
-                                                                        { %>
-                                                                        <i class="fas fa-film"
-                                                                            style="color: #e37c0f; cursor: pointer;"
-                                                                            data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                            data-file-type="<%= file.friendlyFileType %>"></i>
-                                                                        <% } else { %>
-                                                                            <i class="fas fa-file"
-                                                                                style="color: #6c757d; cursor: pointer;"
-                                                                                data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                                data-file-type="<%= file.friendlyFileType %>"></i>
-                                                                            <% } %>
-                                    </td>
-                                    <td>
-                                        <%= file.friendlyFileType %>
-                                    </td>
-                                    <td>
-                                        <%= file.formattedFileSize %>
-                                    </td>
-                                    <td>
-                                        <%= new Date(file.uploadedAt).toLocaleString('en-GB') %>
-                                    </td>
-                                    <td>
-                                        <%= file.uploadedBy %>
-                                    </td>
-                                    <td>
-                                        <a href="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                            class="btn btn-primary btn-sm" download="<%= file.fileName %>">
-                                            <i class="fas fa-download"></i> Download
-                                        </a>
-                                    </td>
-                                    <td class="delete-column">
-                                        <a href="/uploads/delete/<%= encodeURIComponent(file.fileName) %>"
-                                            class="btn btn-danger btn-sm"
-                                            onclick="return confirmDelete('<%= encodeURIComponent(file.fileName) %>')">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </a>
-                                    </td>
-                                </tr>
-                                <% }); %>
-                                    <% } else { %>
-                                        <tr>
-                                            <td colspan="6" class="text-center">No files uploaded yet.</td>
-                                        </tr>
-                                        <% } %>
-                    </tbody> -->
-                    <tbody>
-                        <% if (files && files.length > 0) { %>
-                            <% files.forEach(file => { %>
-                                <% if (file.uploadedBy !== 'admin') { %> 
+                                <% if (file.uploadedBy !=='admin' ) { %>
                                     <tr>
                                         <td>
                                             <%= file.fileName %>
-                                            <% if (file.friendlyFileType.includes('Image')) { %>
-                                                <i class="fas fa-image" style="color: #15e018; cursor: pointer;"
-                                                   data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                   data-file-type="<%= file.friendlyFileType %>"></i>
-                                            <% } else if (file.friendlyFileType === 'PDF Document') { %>
-                                                <i class="fas fa-file-pdf" style="color: #d9534f; cursor: pointer;"
-                                                   data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                   data-file-type="<%= file.friendlyFileType %>"></i>
-                                            <% } else if (file.friendlyFileType === 'Word Document') { %>
-                                                <i class="fas fa-file-word" style="color: #007bff; cursor: pointer;"
-                                                   data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                   data-file-type="<%= file.friendlyFileType %>"></i>
-                                            <% } else if (file.friendlyFileType === 'Excel Spreadsheet') { %>
-                                                <i class="fas fa-file-excel" style="color: #28a745; cursor: pointer;"
-                                                   data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                   data-file-type="<%= file.friendlyFileType %>"></i>
-                                            <% } else if (file.friendlyFileType === 'PowerPoint Presentation') { %>
-                                                <i class="fas fa-file-powerpoint" style="color: #ff9900; cursor: pointer;"
-                                                   data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                   data-file-type="<%= file.friendlyFileType %>"></i>
-                                            <% } else if (file.friendlyFileType === 'MP3 Audio') { %>
-                                                <i class="fas fa-file-audio" style="color: #d310e9; cursor: pointer;"
-                                                   data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                   data-file-type="<%= file.friendlyFileType %>"></i>
-                                            <% } else if (file.friendlyFileType === 'MP4 Video') { %>
-                                                <i class="fas fa-film" style="color: #e37c0f; cursor: pointer;"
-                                                   data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                   data-file-type="<%= file.friendlyFileType %>"></i>
-                                            <% } else { %>
-                                                <i class="fas fa-file" style="color: #6c757d; cursor: pointer;"
-                                                   data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                   data-file-type="<%= file.friendlyFileType %>"></i>
-                                            <% } %>
+                                                <% if (file.friendlyFileType.includes('Image')) { %>
+                                                    <i class="fas fa-image" style="color: #15e018; cursor: pointer;"
+                                                        data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
+                                                        data-file-type="<%= file.friendlyFileType %>"></i>
+                                                    <% } else if (file.friendlyFileType==='PDF Document' ) { %>
+                                                        <i class="fas fa-file-pdf"
+                                                            style="color: #d9534f; cursor: pointer;"
+                                                            data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
+                                                            data-file-type="<%= file.friendlyFileType %>"></i>
+                                                        <% } else if (file.friendlyFileType==='Word Document' ) { %>
+                                                            <i class="fas fa-file-word"
+                                                                style="color: #007bff; cursor: pointer;"
+                                                                data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
+                                                                data-file-type="<%= file.friendlyFileType %>"></i>
+                                                            <% } else if (file.friendlyFileType==='Excel Spreadsheet' )
+                                                                { %>
+                                                                <i class="fas fa-file-excel"
+                                                                    style="color: #28a745; cursor: pointer;"
+                                                                    data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
+                                                                    data-file-type="<%= file.friendlyFileType %>"></i>
+                                                                <% } else if
+                                                                    (file.friendlyFileType==='PowerPoint Presentation' )
+                                                                    { %>
+                                                                    <i class="fas fa-file-powerpoint"
+                                                                        style="color: #ff9900; cursor: pointer;"
+                                                                        data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
+                                                                        data-file-type="<%= file.friendlyFileType %>"></i>
+                                                                    <% } else if (file.friendlyFileType==='MP3 Audio' )
+                                                                        { %>
+                                                                        <i class="fas fa-file-audio"
+                                                                            style="color: #d310e9; cursor: pointer;"
+                                                                            data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
+                                                                            data-file-type="<%= file.friendlyFileType %>"></i>
+                                                                        <% } else if
+                                                                            (file.friendlyFileType==='MP4 Video' ) { %>
+                                                                            <i class="fas fa-film"
+                                                                                style="color: #e37c0f; cursor: pointer;"
+                                                                                data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
+                                                                                data-file-type="<%= file.friendlyFileType %>"></i>
+                                                                            <% } else { %>
+                                                                                <i class="fas fa-file"
+                                                                                    style="color: #6c757d; cursor: pointer;"
+                                                                                    data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
+                                                                                    data-file-type="<%= file.friendlyFileType %>"></i>
+                                                                                <% } %>
                                         </td>
                                         <td>
                                             <%= file.friendlyFileType %>
@@ -181,26 +110,125 @@
                                         </td>
                                         <td>
                                             <a href="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                               class="btn btn-primary btn-sm" download="<%= file.fileName %>">
+                                                class="btn btn-primary btn-sm" download="<%= file.fileName %>">
                                                 <i class="fas fa-download"></i> Download
                                             </a>
                                         </td>
                                         <td class="delete-column">
                                             <a href="/uploads/delete/<%= encodeURIComponent(file.fileName) %>"
-                                               class="btn btn-danger btn-sm"
-                                               onclick="return confirmDelete('<%= encodeURIComponent(file.fileName) %>')">
+                                                class="btn btn-danger btn-sm"
+                                                onclick="return confirmDelete('<%= encodeURIComponent(file.fileName) %>')">
                                                 <i class="fas fa-trash"></i> Delete
                                             </a>
                                         </td>
                                     </tr>
-                                <% } %>
-                            <% }); %>
-                        <% } else { %>
-                            <tr>
-                                <td colspan="6" class="text-center">No files uploaded yet.</td>
-                            </tr>
-                        <% } %>
+                                    <% } %>
+                                        <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="6" class="text-center">No files uploaded yet.</td>
+                                                </tr>
+                                                <% } %>
+
+                                                    <!-- Public Files Section -->
+                                                    <% if (publicFiles && publicFiles.length> 0) { %>
+                                                        <% publicFiles.forEach(publicFile=> { %>
+                                                            <tr>
+                                                                <td>
+                                                                    <%= publicFile.fileName %>
+                                                                        <% if
+                                                                            (publicFile.friendlyFileType.includes('Image'))
+                                                                            { %>
+                                                                            <i class="fas fa-image"
+                                                                                style="color: #15e018; cursor: pointer"
+                                                                                data-file-path="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
+                                                                                data-file-type="<%= publicFile.friendlyFileType %>"></i>
+                                                                            <% } else if
+                                                                                (publicFile.friendlyFileType==='PDF Document'
+                                                                                ) { %>
+                                                                                <i class="fas fa-file-pdf"
+                                                                                    style="color: #d9534f; cursor: pointer"
+                                                                                    data-file-path="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
+                                                                                    data-file-type="<%= publicFile.friendlyFileType %>"></i>
+                                                                                <% } else if
+                                                                                    (publicFile.friendlyFileType==='Word Document'
+                                                                                    ) { %>
+                                                                                    <i class="fas fa-file-word"
+                                                                                        style="color: #007bff; cursor: pointer"
+                                                                                        data-file-path="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
+                                                                                        data-file-type="<%= publicFile.friendlyFileType %>"></i>
+                                                                                    <% } else if
+                                                                                        (publicFile.friendlyFileType==='Excel Spreadsheet'
+                                                                                        ) { %>
+                                                                                        <i class="fas fa-file-excel"
+                                                                                            style="color: #28a745; cursor: pointer"
+                                                                                            data-file-path="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
+                                                                                            data-file-type="<%= publicFile.friendlyFileType %>"></i>
+                                                                                        <% } else if
+                                                                                            (publicFile.friendlyFileType==='PowerPoint Presentation'
+                                                                                            ) { %>
+                                                                                            <i class="fas fa-file-powerpoint"
+                                                                                                style="color: #ff9900; cursor: pointer"
+                                                                                                data-file-path="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
+                                                                                                data-file-type="<%= publicFile.friendlyFileType %>"></i>
+                                                                                            <% } else if
+                                                                                                (publicFile.friendlyFileType==='MP3 Audio'
+                                                                                                ) { %>
+                                                                                                <i class="fas fa-file-audio"
+                                                                                                    style="color: #d310e9; cursor: pointer"
+                                                                                                    data-file-path="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
+                                                                                                    data-file-type="<%= publicFile.friendlyFileType %>"></i>
+                                                                                                <% } else if
+                                                                                                    (publicFile.friendlyFileType==='MP4 Video'
+                                                                                                    ) { %>
+                                                                                                    <i class="fas fa-film"
+                                                                                                        style="color: #e37c0f; cursor: pointer"
+                                                                                                        data-file-path="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
+                                                                                                        data-file-type="<%= publicFile.friendlyFileType %>"></i>
+                                                                                                    <% } else { %>
+                                                                                                        <i class="fas fa-file"
+                                                                                                            style="color: #6c757d; cursor: pointer"
+                                                                                                            data-file-path="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
+                                                                                                            data-file-type="<%= publicFile.friendlyFileType %>"></i>
+                                                                                                        <% } %>
+                                                                </td>
+                                                                <td>
+                                                                    <%= publicFile.friendlyFileType %>
+                                                                </td>
+                                                                <td>
+                                                                    <%= publicFile.formattedFileSize %>
+                                                                </td>
+                                                                <td>
+                                                                    <%= new
+                                                                        Date(publicFile.uploadedAt).toLocaleString('en-GB')
+                                                                        %>
+                                                                </td>
+                                                                <td>admin</td>
+                                                                <td>
+                                                                    <a href="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
+                                                                        class="btn btn-primary btn-sm"
+                                                                        download="<%= publicFile.fileName %>">
+                                                                        <i class="fas fa-download"></i> Download
+                                                                    </a>
+                                                                </td>
+                                                                <td class="delete-column">
+                                                                    <a href="/uploads/delete/<%= encodeURIComponent(publicFile.fileName) %>"
+                                                                        class="btn btn-danger btn-sm"
+                                                                        onclick="return confirmDelete('<%= encodeURIComponent(publicFile.fileName) %>')">
+                                                                        <i class="fas fa-trash"></i> Delete
+                                                                    </a>
+                                                                </td>
+                                                            </tr>
+                                                            <% }); %>
+                                                                <% } else { %>
+                                                                    <tr>
+                                                                        <td colspan="6" class="text-center">No public
+                                                                            files available.</td>
+                                                                    </tr>
+                                                                    <% } %>
                     </tbody>
+
+
                 </table>
                 <div class="mt-4">
                     <a href="/upload" class="btn btn-info m-0" id="upload-section">
