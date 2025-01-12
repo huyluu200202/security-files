@@ -25,40 +25,6 @@ router.get('/upload', (req, res) => {
     res.render('upload');
 });
 
-router.get('/uploads/:filename', authenticate, async (req, res) => {
-    const { role } = req.user;
-    const { filename } = req.params;
-
-    try {
-        const file = await File.findOne({ where: { fileName: filename } });
-        if (!file) {
-            return res.status(404).json({ message: 'File not found' });
-        }
-
-        if (role !== 'admin') {
-            const permission = await Permission.findOne({
-                where: { user_id: role, file_id: file.id }
-            });
-
-            if (!permission || !permission.can_download) {
-                return res.status(403).json({ message: 'You do not have permission to download this file.' });
-            }
-        }
-
-        const filePath = path.join(__dirname, '../uploads', filename);
-        fs.access(filePath, fs.constants.F_OK, (err) => {
-            if (err) {
-                console.error('File not found:', filePath);
-                return res.status(404).send('File not found');
-            }
-            res.download(filePath);
-        });
-    } catch (error) {
-        console.error('Error fetching file:', error);
-        res.status(500).json({ error: 'Failed to fetch file' });
-    }
-});
-
 router.get('/uploads/delete/:fileName', async (req, res) => {
     const { fileName } = req.params;
 
