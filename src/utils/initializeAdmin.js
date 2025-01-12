@@ -8,12 +8,10 @@ const fs = require('fs');
 
 const initializeAdminAccount = async () => {
     try {
-        // Kiểm tra xem tài khoản admin đã tồn tại chưa
         const adminExists = await User.findOne({ where: { username: 'admin' } });
         let adminUser;
 
         if (!adminExists) {
-            // Nếu không có, tạo tài khoản admin mới
             const hashedPassword = await bcrypt.hash('123456a@A', 10);
 
             adminUser = await User.create({
@@ -27,14 +25,12 @@ const initializeAdminAccount = async () => {
 
             console.log('Admin account created!');
         } else {
-            // Nếu đã có tài khoản admin, sử dụng tài khoản đã có
             adminUser = adminExists;
             console.log('Admin account already exists!');
         }
 
-        const adminUserId = adminUser.id; // Lấy ID của admin
+        const adminUserId = adminUser.id; 
 
-        // Tạo file mặc định nếu chưa có
         const defaultFileExists = await File.findOne({ where: { fileName: 'default_file.txt' } });
         let defaultFile;
 
@@ -53,6 +49,7 @@ const initializeAdminAccount = async () => {
                 friendlyFileType: 'Text File',
                 formattedFileSize: '0 KB',
                 user_id: adminUserId, 
+                uploadedBy: 'admin'
             });
 
             console.log('Default file created!');
@@ -60,16 +57,15 @@ const initializeAdminAccount = async () => {
             defaultFile = defaultFileExists;
         }
 
-        // Kiểm tra và tạo tài khoản giảng viên nếu chưa có
-        const teacherExists = await User.findOne({ where: { username: 'giangvien1' } });
+        const teacherExists = await User.findOne({ where: { username: 'giangvien2' } });
         if (!teacherExists) {
             const hashedTeacherPassword = await bcrypt.hash('123456', 10);
 
             const teacherUser = await User.create({
                 id: uuidv4(),
-                fullname: 'Giang Vien 1',
-                username: 'giangvien1',
-                email: 'giangvien1@gmail.com',
+                fullname: 'Giang Vien 2',
+                username: 'giangvien2',
+                email: 'giangvien2@gmail.com',
                 password: hashedTeacherPassword,
                 role: 'giangvien',
             });
@@ -85,7 +81,6 @@ const initializeAdminAccount = async () => {
             console.log('Teacher account created!');
         }
 
-        // Kiểm tra và tạo tài khoản sinh viên nếu chưa có
         const studentExists = await User.findOne({ where: { username: 'sinhvien1' } });
         if (!studentExists) {
             const hashedStudentPassword = await bcrypt.hash('123456', 10);

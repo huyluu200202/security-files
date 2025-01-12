@@ -17,13 +17,15 @@ CREATE TABLE files (
     id VARCHAR(255) NOT NULL PRIMARY KEY,
     fileName VARCHAR(255) NOT NULL,
     filePath VARCHAR(255) NOT NULL,
-    friendlyFileType VARCHAR(255), 
-    formattedFileSize VARCHAR(50), 
+    friendlyFileType VARCHAR(255),
+    formattedFileSize VARCHAR(50),
     uploadedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     ocrStatus ENUM('pending', 'processing', 'completed', 'failed') DEFAULT 'pending',
     ocrContent TEXT,
     user_id VARCHAR(50) NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    uploadedBy VARCHAR(255) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (uploadedBy) REFERENCES users(username) ON DELETE CASCADE
 );
 
 CREATE TABLE permissions (

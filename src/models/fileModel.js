@@ -51,6 +51,14 @@ const File = sequelize.define('File', {
             key: 'id'
         }
     },
+    uploadedBy: { 
+        type: DataTypes.STRING,
+        allowNull: false,
+        references: {
+            model: User, 
+            key: 'username', 
+        },
+    },
 }, {
     sequelize,
     tableName: 'files',
