@@ -1,9 +1,11 @@
 const File = require('../models/fileModel');
 const User = require('../models/userModel');
 const AuditLog = require('../models/auditLogModel');
-const Permission = require('../models/permissionModel');
+const OCRLog = require('../models/ocrLogModel');
 const fs = require('fs');
 const path = require('path');
+const Tesseract = require('tesseract.js');
+const pdf2pic = require("pdf2pic");
 
 const mimeTypeMap = {
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Word Document',
@@ -31,113 +33,20 @@ const getFriendlyFileType = (mimeType) => {
     return mimeTypeMap[mimeType] || mimeType;
 };
 
-const hasPermissionToView = async (userId, fileId) => {
-    const permission = await Permission.findOne({
-        where: { user_id: userId, file_id: fileId },
-    });
-    return permission && permission.can_view;
-};
-
-const hasPermissionToDownload = async (userId, fileId) => {
-    const permission = await Permission.findOne({
-        where: { user_id: userId, file_id: fileId },
-    });
-    return permission && permission.can_download;
-};
-
-// exports.getFiles = async () => {
-//     try {
-//         const files = await File.findAll();
-//         const filesWithFriendlyTypes = files.map(file => ({
-//             ...file.dataValues,
-//             friendlyFileType: getFriendlyFileType(file.friendlyFileType),
-//             fileSize: file.formattedFileSize,
-//         }));
-
-//         return filesWithFriendlyTypes;
-//     } catch (error) {
-//         console.error('Error fetching files:', error);
-//         throw new Error('Failed to retrieve files');
-//     }
-// };
-
-// exports.getFiles = async (req, res) => {
-//     try {
-//         const userId = req.user.userId;
-//         const userRole = req.user.role;
-
-//         // Fetch all files from the database
-//         const files = await File.findAll();
-
-//         // If the user is an admin, they should have access to all files
-//         if (userRole === 'admin') {
-//             const filesWithFriendlyTypes = files.map(file => ({
-//                 ...file.dataValues,
-//                 friendlyFileType: getFriendlyFileType(file.friendlyFileType),
-//                 fileSize: file.formattedFileSize,
-//             }));
-//             return res.status(200).json(filesWithFriendlyTypes);
-//         }
-
-//         // If the user is not an admin, check for permissions
-//         const filesWithPermissions = [];
-
-//         for (const file of files) {
-//             // Check if the user has permission to access the file
-//             const permission = await Permission.findOne({
-//                 where: { user_id: userId, file_id: file.id }
-//             });
-
-//             // If the user has permission, add the file to the response
-//             if (permission && permission.can_view) {
-//                 filesWithPermissions.push({
-//                     ...file.dataValues,
-//                     friendlyFileType: getFriendlyFileType(file.friendlyFileType),
-//                     fileSize: file.formattedFileSize,
-//                 });
-//             }
-//         }
-
-//         // Return only files the user has permission to view
-//         res.status(200).json(filesWithPermissions);
-//     } catch (error) {
-//         console.error('Error fetching files:', error);
-//         res.status(500).send('Failed to retrieve files');
-//     }
-// };
-
-exports.getFiles = async (req, res) => {
+exports.getFiles = async () => {
     try {
-        const { userId, role } = req.user;
-
         const files = await File.findAll();
-
-        if (role === 'admin') {
-            return res.status(200).json(files.map(file => ({
-                ...file.dataValues,
-                friendlyFileType: getFriendlyFileType(file.friendlyFileType),
-                fileSize: file.formattedFileSize,
-            })));
-        }
-
-        const filePermissions = await Permission.findAll({
-            where: { user_id: userId },
-            include: [{ model: File }]
-        });
-
-        const filesWithPermissions = filePermissions.filter(permission => permission.can_view).map(permission => ({
-            ...permission.File.dataValues,
-            friendlyFileType: getFriendlyFileType(permission.File.friendlyFileType),
-            fileSize: permission.File.formattedFileSize,
+        const filesWithFriendlyTypes = files.map(file => ({
+            ...file.dataValues,
+            friendlyFileType: getFriendlyFileType(file.friendlyFileType),
+            fileSize: file.formattedFileSize,
         }));
-
-        res.status(200).json(filesWithPermissions);
+        return filesWithFriendlyTypes;
     } catch (error) {
         console.error('Error fetching files:', error);
-        res.status(500).send('Failed to retrieve files');
+        throw new Error('Failed to retrieve files');
     }
 };
-
 
 exports.getFilesName = async (req, res) => {
     try {
@@ -147,7 +56,6 @@ exports.getFilesName = async (req, res) => {
             friendlyFileType: file.friendlyFileType,
             fileSize: file.formattedFileSize,
         }));
-
         res.render('home', { files: filesWithFriendlyTypes });
     } catch (error) {
         console.error('Error fetching files:', error);
@@ -171,12 +79,10 @@ exports.uploadFile = async (req, res) => {
 
         const { originalname, mimetype, size } = req.file;
         const fileName = Buffer.from(originalname, 'latin1').toString('utf8');
-
         const friendlyFileType = getFriendlyFileType(mimetype);
         const formattedFileSize = convertFileSize(size);
 
         const filePath = path.join(__dirname, '../uploads', fileName);
-
         fs.renameSync(req.file.path, filePath);
 
         const newFile = await File.create({
@@ -187,6 +93,19 @@ exports.uploadFile = async (req, res) => {
             user_id: userId,
             uploadedBy: user.username,
         });
+
+        const newOCRLog = await OCRLog.create({
+            file_id: newFile.id,
+            status: 'pending',   
+            result: null,       
+            error_message: null, 
+        });
+
+        if (mimetype === 'application/pdf') {
+            await handlePdfOCR(filePath, newFile.id, newOCRLog.id);
+        } else if (mimetype.startsWith('image/')) {
+            await handleImageOCR(filePath, newFile.id, newOCRLog.id);
+        }
 
         await AuditLog.create({
             user_id: userId,
@@ -202,24 +121,75 @@ exports.uploadFile = async (req, res) => {
     }
 };
 
+async function handlePdfOCR(filePath, fileId, ocrLogId) {
+    const outputPath = path.join(__dirname, '../uploads/pdf_images');
+    if (!fs.existsSync(outputPath)) {
+        fs.mkdirSync(outputPath, { recursive: true });
+    }
+
+    const options = {
+        density: 100,  
+        saveFilename: 'pdf_to_image',
+        savePath: outputPath,
+        format: 'png',
+        width: 600,
+        height: 800
+    };
+
+    const converter = pdf2pic.fromPath(filePath, options);
+    try {
+        const resolve = await converter(1); 
+        const { data: { text } } = await Tesseract.recognize(resolve.path, 'eng', { logger: (m) => console.log(m) });
+        
+        await OCRLog.update(
+            { status: 'completed', result: text },
+            { where: { id: ocrLogId } }
+        );
+        
+        console.log('OCR Text:', text);
+    } catch (error) {
+        console.error('PDF conversion or OCR processing failed:', error);
+        await OCRLog.update(
+            { status: 'failed', error_message: error.message },
+            { where: { id: ocrLogId } }
+        );
+    }
+}
+
+async function handleImageOCR(filePath, fileId, ocrLogId) {
+    try {
+        const { data: { text } } = await Tesseract.recognize(filePath, 'eng', { logger: (m) => console.log(m) });
+        
+        await OCRLog.update(
+            { status: 'completed', result: text },
+            { where: { id: ocrLogId } }
+        );
+        
+        console.log('OCR Text:', text);
+    } catch (error) {
+        console.error('Image OCR failed:', error);
+        await OCRLog.update(
+            { status: 'failed', error_message: error.message },
+            { where: { id: ocrLogId } }
+        );
+    }
+}
+
 exports.viewFile = async (req, res) => {
     try {
         const fileId = req.params.fileId;
         const userId = req.user.userId;
         const userRole = req.user.role;
 
-        // Check if file exists
         const file = await File.findOne({ where: { id: fileId } });
         if (!file) {
             return res.status(404).json({ message: 'File not found' });
         }
 
-        // Admin bypass: Admins can always view files
         if (userRole === 'admin') {
             return sendFile(file);
         }
 
-        // Check if the user has permission to view the file
         const canView = await hasPermissionToView(userId, fileId);
         if (!canView) {
             return res.status(403).json({ message: 'Permission denied: You do not have view permissions.' });
@@ -228,7 +198,6 @@ exports.viewFile = async (req, res) => {
         return sendFile(file);
 
         async function sendFile(file) {
-            // Log the view action
             await AuditLog.create({
                 user_id: userId,
                 file_id: file.id,
@@ -236,11 +205,9 @@ exports.viewFile = async (req, res) => {
                 description: `File ${file.fileName} viewed.`,
             });
 
-            // Return the file
             const filePath = path.join(__dirname, '../uploads', file.fileName);
             res.sendFile(filePath);
         }
-
     } catch (error) {
         console.error('Error in viewFile method:', error);
         res.status(500).json({ error: 'Failed to view file' });
@@ -259,12 +226,10 @@ exports.downloadFile = async (req, res) => {
             return res.status(404).json({ message: 'File not found' });
         }
 
-        // Admin bypass: Admins can always download files
         if (userRole === 'admin') {
             return downloadFileAction(file);
         }
 
-        // Check if the user has permission to download the file
         const canDownload = await hasPermissionToDownload(userId, file.id);
         if (!canDownload) {
             return res.status(403).json({ message: 'Permission denied: You do not have download permissions.' });
@@ -273,7 +238,6 @@ exports.downloadFile = async (req, res) => {
         return downloadFileAction(file);
 
         async function downloadFileAction(file) {
-            // Log the download action
             await AuditLog.create({
                 user_id: userId,
                 file_id: file.id,
@@ -283,7 +247,6 @@ exports.downloadFile = async (req, res) => {
 
             res.download(filePath, fileName);
         }
-
     } catch (error) {
         console.error('Error in downloadFile method:', error);
         res.status(500).json({ error: 'File download failed' });
@@ -314,7 +277,6 @@ exports.deleteFile = async (req, res) => {
         await file.destroy();
 
         res.status(200).json({ message: 'File deleted successfully' });
-
     } catch (error) {
         console.error('File deletion failed:', error);
         res.status(500).json({ error: 'File deletion failed' });
