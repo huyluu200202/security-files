@@ -123,6 +123,20 @@ exports.uploadFile = async (req, res) => {
         const friendlyFileType = getFriendlyFileType(mimetype);
         const formattedFileSize = convertFileSize(size);
 
+        const existingFile = await File.findOne({
+            where: {
+                fileName, 
+                friendlyFileType,
+                formattedFileSize,    
+                user_id: userId, 
+                uploadedBy: user.username,
+            }
+        });          
+
+        if (existingFile) {
+            return res.status(409).json({ message: 'File already uploaded.' });
+        }
+
         const filePath = path.join(__dirname, '../uploads', fileName);
         fs.renameSync(req.file.path, filePath);
 
@@ -139,9 +153,9 @@ exports.uploadFile = async (req, res) => {
 
         const newOCRLog = await OCRLog.create({
             file_id: newFile.id,
-            status: 'pending',   
-            result: null,       
-            error_message: null, 
+            status: 'pending',
+            result: null,
+            error_message: null,
         });
 
         const tempFilePath = path.join(__dirname, '../uploads', `temp_${fileName}`);
