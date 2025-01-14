@@ -53,47 +53,55 @@
                                                 <% if (file.friendlyFileType.includes('Image')) { %>
                                                     <i class="fas fa-image" style="color: #15e018; cursor: pointer;"
                                                         data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                        data-file-type="<%= file.friendlyFileType %>"></i>
+                                                        data-file-type="<%= file.friendlyFileType %>"
+                                                        data-file-name="<%= file.fileName %>"></i>
                                                     <% } else if (file.friendlyFileType==='PDF Document' ) { %>
                                                         <i class="fas fa-file-pdf"
                                                             style="color: #d9534f; cursor: pointer;"
                                                             data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                            data-file-type="<%= file.friendlyFileType %>"></i>
+                                                            data-file-type="<%= file.friendlyFileType %>"
+                                                            data-file-name="<%= file.fileName %>"></i>
                                                         <% } else if (file.friendlyFileType==='Word Document' ) { %>
                                                             <i class="fas fa-file-word"
                                                                 style="color: #007bff; cursor: pointer;"
                                                                 data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                data-file-type="<%= file.friendlyFileType %>"></i>
+                                                                data-file-type="<%= file.friendlyFileType %>"
+                                                                data-file-name="<%= file.fileName %>"></i>
                                                             <% } else if (file.friendlyFileType==='Excel Spreadsheet' )
                                                                 { %>
                                                                 <i class="fas fa-file-excel"
                                                                     style="color: #28a745; cursor: pointer;"
                                                                     data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                    data-file-type="<%= file.friendlyFileType %>"></i>
+                                                                    data-file-type="<%= file.friendlyFileType %>"
+                                                                    data-file-name="<%= file.fileName %>"></i>
                                                                 <% } else if
                                                                     (file.friendlyFileType==='PowerPoint Presentation' )
                                                                     { %>
                                                                     <i class="fas fa-file-powerpoint"
                                                                         style="color: #ff9900; cursor: pointer;"
                                                                         data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                        data-file-type="<%= file.friendlyFileType %>"></i>
+                                                                        data-file-type="<%= file.friendlyFileType %>"
+                                                                        data-file-name="<%= file.fileName %>"></i>
                                                                     <% } else if (file.friendlyFileType==='MP3 Audio' )
                                                                         { %>
                                                                         <i class="fas fa-file-audio"
                                                                             style="color: #d310e9; cursor: pointer;"
                                                                             data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                            data-file-type="<%= file.friendlyFileType %>"></i>
+                                                                            data-file-type="<%= file.friendlyFileType %>"
+                                                                            data-file-name="<%= file.fileName %>"></i>
                                                                         <% } else if
                                                                             (file.friendlyFileType==='MP4 Video' ) { %>
                                                                             <i class="fas fa-film"
                                                                                 style="color: #e37c0f; cursor: pointer;"
                                                                                 data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                                data-file-type="<%= file.friendlyFileType %>"></i>
+                                                                                data-file-type="<%= file.friendlyFileType %>"
+                                                                                data-file-name="<%= file.fileName %>"></i>
                                                                             <% } else { %>
                                                                                 <i class="fas fa-file"
                                                                                     style="color: #6c757d; cursor: pointer;"
                                                                                     data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                                    data-file-type="<%= file.friendlyFileType %>"></i>
+                                                                                    data-file-type="<%= file.friendlyFileType %>"
+                                                                                    data-file-name="<%= file.fileName %>"></i>
                                                                                 <% } %>
                                         </td>
                                         <td>
@@ -130,7 +138,6 @@
                                                 </tr>
                                                 <% } %>
 
-                                                    <!-- Public Files Section -->
                                                     <% if (publicFiles && publicFiles.length> 0) { %>
                                                         <% publicFiles.forEach(publicFile=> { %>
                                                             <tr>
@@ -142,54 +149,62 @@
                                                                             <i class="fas fa-image"
                                                                                 style="color: #15e018; cursor: pointer"
                                                                                 data-file-path="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                                data-file-type="<%= publicFile.friendlyFileType %>"></i>
+                                                                                data-file-type="<%= publicFile.friendlyFileType %>"
+                                                                                data-file-name="<%= publicFile.fileName %>"></i>
                                                                             <% } else if
                                                                                 (publicFile.friendlyFileType==='PDF Document'
                                                                                 ) { %>
                                                                                 <i class="fas fa-file-pdf"
                                                                                     style="color: #d9534f; cursor: pointer"
                                                                                     data-file-path="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                                    data-file-type="<%= publicFile.friendlyFileType %>"></i>
+                                                                                    data-file-type="<%= publicFile.friendlyFileType %>"
+                                                                                    data-file-name="<%= publicFile.fileName %>"></i>
                                                                                 <% } else if
                                                                                     (publicFile.friendlyFileType==='Word Document'
                                                                                     ) { %>
                                                                                     <i class="fas fa-file-word"
                                                                                         style="color: #007bff; cursor: pointer"
                                                                                         data-file-path="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                                        data-file-type="<%= publicFile.friendlyFileType %>"></i>
+                                                                                        data-file-type="<%= publicFile.friendlyFileType %>"
+                                                                                        data-file-name="<%= publicFile.fileName %>"></i>
                                                                                     <% } else if
                                                                                         (publicFile.friendlyFileType==='Excel Spreadsheet'
                                                                                         ) { %>
                                                                                         <i class="fas fa-file-excel"
                                                                                             style="color: #28a745; cursor: pointer"
                                                                                             data-file-path="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                                            data-file-type="<%= publicFile.friendlyFileType %>"></i>
+                                                                                            data-file-type="<%= publicFile.friendlyFileType %>"
+                                                                                            data-file-name="<%= publicFile.fileName %>"></i>
                                                                                         <% } else if
                                                                                             (publicFile.friendlyFileType==='PowerPoint Presentation'
                                                                                             ) { %>
                                                                                             <i class="fas fa-file-powerpoint"
                                                                                                 style="color: #ff9900; cursor: pointer"
                                                                                                 data-file-path="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                                                data-file-type="<%= publicFile.friendlyFileType %>"></i>
+                                                                                                data-file-type="<%= publicFile.friendlyFileType %>"
+                                                                                                data-file-name="<%= publicFile.fileName %>"></i>
                                                                                             <% } else if
                                                                                                 (publicFile.friendlyFileType==='MP3 Audio'
                                                                                                 ) { %>
                                                                                                 <i class="fas fa-file-audio"
                                                                                                     style="color: #d310e9; cursor: pointer"
                                                                                                     data-file-path="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                                                    data-file-type="<%= publicFile.friendlyFileType %>"></i>
+                                                                                                    data-file-type="<%= publicFile.friendlyFileType %>"
+                                                                                                    data-file-name="<%= publicFile.fileName %>"></i>
                                                                                                 <% } else if
                                                                                                     (publicFile.friendlyFileType==='MP4 Video'
                                                                                                     ) { %>
                                                                                                     <i class="fas fa-film"
                                                                                                         style="color: #e37c0f; cursor: pointer"
                                                                                                         data-file-path="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                                                        data-file-type="<%= publicFile.friendlyFileType %>"></i>
+                                                                                                        data-file-type="<%= publicFile.friendlyFileType %>"
+                                                                                                        data-file-name="<%= publicFile.fileName %>"></i>
                                                                                                     <% } else { %>
                                                                                                         <i class="fas fa-file"
                                                                                                             style="color: #6c757d; cursor: pointer"
                                                                                                             data-file-path="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                                                            data-file-type="<%= publicFile.friendlyFileType %>"></i>
+                                                                                                            data-file-type="<%= publicFile.friendlyFileType %>"
+                                                                                                            data-file-name="<%= publicFile.fileName %>"></i>
                                                                                                         <% } %>
                                                                 </td>
                                                                 <td>
@@ -258,61 +273,66 @@
 
             <script>
                 document.querySelectorAll('.fas').forEach(icon => {
-                    icon.addEventListener('click', function () {
+                    icon.addEventListener('click', async function () {
                         const filePath = this.getAttribute('data-file-path');
+                        const fileName = this.getAttribute('data-file-name');
                         const fileType = this.getAttribute('data-file-type');
                         const previewContainer = document.getElementById('file-preview');
 
-                        if (!filePath || !fileType) {
-                            console.error('File path or file type is missing');
+                        if (!fileName || !fileType) {
+                            console.error('File name or type is missing');
+                            previewContainer.innerHTML = '<p>Unable to preview this file.</p>';
                             return;
                         }
 
-                        if (fileType.includes('Image')) {
-                            previewContainer.innerHTML = `<img src="${filePath}" alt="File Preview">`;
-                        } else if (fileType === 'PDF Document') {
-                            previewContainer.innerHTML = `<iframe src="${filePath}" width="100%" height="400px"></iframe>`;
-                        } else if (fileType === 'Word Document') {
-                            const googleDocsUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(filePath)}&embedded=true`;
-                            previewContainer.innerHTML = `<iframe src="${googleDocsUrl}" width="100%" height="400px"></iframe>`;
-                        } else if (fileType === 'Excel Spreadsheet') {
-                            const googleSheetsUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vT6rB5WkZp9eivUwp1L9cW5j1P1jt5f7-_yTj9h8jIMy4zQm5A1Wrxfz1BoKU4_k5hkt5YkD1gbwR9g/pub?output=html`;
-                            previewContainer.innerHTML = `<iframe src="${googleSheetsUrl}" width="100%" height="400px"></iframe>`;
-                        } else if (fileType === 'PowerPoint Presentation') {
-                            const googleSlidesUrl = `https://docs.google.com/presentation/d/e/2PACX-1vT6rB5WkZp9eivUwp1L9cW5j1P1jt5f7-_yTj9h8jIMy4zQm5A1Wrxfz1BoKU4_k5hkt5YkD1gbwR9g/pub?output=html`;
-                            previewContainer.innerHTML = `<iframe src="${googleSlidesUrl}" width="100%" height="400px"></iframe>`;
-                        } else if (fileType === 'MP3 Audio') {
-                            previewContainer.innerHTML = `<audio controls id="audio-player">
-                                                          <source src="${filePath}" type="audio/mpeg">
-                                                          Your browser does not support the audio element.
-                                                      </audio>`;
-                        } else if (fileType === 'MP4 Video') {
-                            previewContainer.innerHTML = `<video controls id="video-player" width="100%">
-                                                          <source src="${filePath}" type="video/mp4">
-                                                          Your browser does not support the video element.
-                                                      </video>`;
-                        } else {
-                            previewContainer.innerHTML = `<p>No preview available for this file type. Please download it.</p>`;
+                        try {
+                            const response = await fetch(`/preview/${encodeURIComponent(fileName)}`);
+                            console.log(`/preview/${encodeURIComponent(fileName)}`);
+                            if (!response.ok) {
+                                throw new Error('Failed to fetch file preview');
+                            }
+
+                            const fileUrl = URL.createObjectURL(await response.blob());
+
+                            if (fileType.includes('Image')) {
+                                previewContainer.innerHTML = `<img src="${fileUrl}" alt="File Preview" style="max-width: 100%; height: auto;">`;
+                            } else if (fileType === 'PDF Document') {
+                                previewContainer.innerHTML = `<iframe src="/preview/${encodeURIComponent(fileName)}" width="100%" height="600px" style="border: none;"></iframe>`;
+                            } else if (fileType === 'Word Document') {
+                                const googleDocsUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`;
+                                previewContainer.innerHTML = `<iframe src="${googleDocsUrl}" width="100%" height="400px" style="border: none;"></iframe>`;
+                            } else if (fileType === 'Excel Spreadsheet') {
+                                const googleSheetsUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vT6rB5WkZp9eivUwp1L9cW5j1P1jt5f7-_yTj9h8jIMy4zQm5A1Wrxfz1BoKU4_k5hkt5YkD1gbwR9g/pub?output=html`;
+                                previewContainer.innerHTML = `<iframe src="${googleSheetsUrl}" width="100%" height="400px" style="border: none;"></iframe>`;
+                            } else if (fileType === 'PowerPoint Presentation') {
+                                const googleSlidesUrl = `https://docs.google.com/presentation/d/e/2PACX-1vT6rB5WkZp9eivUwp1L9cW5j1P1jt5f7-_yTj9h8jIMy4zQm5A1Wrxfz1BoKU4_k5hkt5YkD1gbwR9g/pub?output=html`;
+                                previewContainer.innerHTML = `<iframe src="${googleSlidesUrl}" width="100%" height="400px" style="border: none;"></iframe>`;
+                            } else if (fileType === 'MP3 Audio') {
+                                previewContainer.innerHTML = `<audio controls id="audio-player" style="width: 100%; max-width: 600px;">
+        <source src="${fileUrl}" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>`;
+                            } else if (fileType === 'MP4 Video') {
+                                previewContainer.innerHTML = `<video controls id="video-player" style="width: 100%; max-width: 800px;">
+        <source src="${fileUrl}" type="video/mp4">
+        Your browser does not support the video element.
+    </video>`;
+                            } else {
+                                previewContainer.innerHTML = `<p>No preview available for this file type. Please download it.</p>`;
+                            }
+
+                            const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+                            modal.show();
+
+                            const modalElement = document.getElementById('previewModal');
+                            modalElement.addEventListener('hidden.bs.modal', function () {
+                                previewContainer.innerHTML = '';
+                                URL.revokeObjectURL(fileUrl);
+                            });
+                        } catch (error) {
+                            console.error('Error fetching preview:', error);
+                            previewContainer.innerHTML = '<p>Failed to load preview. Please try again later.</p>';
                         }
-
-                        const modal = new bootstrap.Modal(document.getElementById('previewModal'));
-                        modal.show();
-
-                        const modalElement = document.getElementById('previewModal');
-                        modalElement.addEventListener('hidden.bs.modal', function () {
-                            const audioPlayer = document.getElementById('audio-player');
-                            const videoPlayer = document.getElementById('video-player');
-
-                            if (audioPlayer) {
-                                audioPlayer.pause();
-                                audioPlayer.currentTime = 0;
-                            }
-
-                            if (videoPlayer) {
-                                videoPlayer.pause();
-                                videoPlayer.currentTime = 0;
-                            }
-                        });
                     });
                 });
 

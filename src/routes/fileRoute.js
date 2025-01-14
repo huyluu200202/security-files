@@ -48,38 +48,6 @@ router.get('/uploads/delete/:fileName', async (req, res) => {
 
 router.post('/api/upload', authenticate, upload.single('file'), fileController.uploadFile);
 
-router.get('/api/view/:fileId', authenticate, async (req, res) => {
-    try {
-        const { fileId } = req.params;
-
-        const file = await File.findByPk(fileId);
-        if (!file) {
-            return res.status(404).json({ message: 'File not found' });
-        }
-
-        fileController.viewFile(req, res);
-    } catch (error) {
-        console.error('Error viewing file:', error.message);
-        res.status(500).json({ error: 'Failed to view file' });
-    }
-});
-
-router.get('/api/download/:filename', authenticate, async (req, res) => {
-    try {
-        const { filename } = req.params;
-
-        const file = await File.findOne({ where: { fileName: filename } });
-        if (!file) {
-            return res.status(404).json({ message: 'File not found' });
-        }
-
-        fileController.downloadFile(req, res);
-    } catch (error) {
-        console.error('Error downloading file:', error.message);
-        res.status(500).json({ error: 'Failed to download file' });
-    }
-});
-
 router.get('/api/public-files', authenticate, async (req, res) => {
     try {
         const publicFiles = await File.findAll({ where: { isPublic: true } });
@@ -90,5 +58,7 @@ router.get('/api/public-files', authenticate, async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch public files' });
     }
 });
+
+router.get('/preview/:fileName', fileController.previewFile);
 
 module.exports = router;

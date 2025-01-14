@@ -6,7 +6,53 @@ const fs = require('fs');
 const path = require('path');
 const Tesseract = require('tesseract.js');
 const pdf2pic = require("pdf2pic");
+const crypto = require('crypto');
+const mime = require('mime-types');
+const mammoth = require('mammoth');
 
+const algorithm = 'aes-256-cbc';
+const key = crypto.randomBytes(32); 
+const iv = crypto.randomBytes(16); 
+
+function encryptFile(filePath) {
+    const data = fs.readFileSync(filePath);
+    const cipher = crypto.createCipheriv(algorithm, key, iv);
+    const encrypted = Buffer.concat([cipher.update(data), cipher.final()]);
+
+    fs.writeFileSync(filePath, encrypted);
+
+    const keyDir = path.join(__dirname, '../uploads/key_path');
+    const ivDir = path.join(__dirname, '../uploads/iv_path');
+
+    if (!fs.existsSync(keyDir)) {
+        fs.mkdirSync(keyDir, { recursive: true });
+    }
+    if (!fs.existsSync(ivDir)) {
+        fs.mkdirSync(ivDir, { recursive: true });
+    }
+
+    const keyPath = path.join(keyDir, path.basename(filePath) + '.key');
+    const ivPath = path.join(ivDir, path.basename(filePath) + '.iv');
+
+    fs.writeFileSync(keyPath, key); 
+    fs.writeFileSync(ivPath, iv);
+}
+function decryptFile(encryptedFilePath, outputFilePath) {
+    const data = fs.readFileSync(encryptedFilePath);
+
+    const keyDir = path.join(__dirname, '../uploads/key_path');
+    const ivDir = path.join(__dirname, '../uploads/iv_path');
+
+    const keyPath = path.join(keyDir, path.basename(encryptedFilePath) + '.key');
+    const ivPath = path.join(ivDir, path.basename(encryptedFilePath) + '.iv');
+
+    const key = fs.readFileSync(keyPath); 
+    const iv = fs.readFileSync(ivPath); 
+    const decipher = crypto.createDecipheriv(algorithm, key, iv);
+
+    const decrypted = Buffer.concat([decipher.update(data), decipher.final()]);
+    fs.writeFileSync(outputFilePath, decrypted);
+}
 const mimeTypeMap = {
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Word Document',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'Excel Spreadsheet',
@@ -21,18 +67,15 @@ const mimeTypeMap = {
     'audio/mpeg': 'MP3 Audio',
     'video/mp4': 'MP4 Video'
 };
-
 const convertFileSize = (size) => {
     if (size < 1024) return size + ' bytes';
     else if (size < 1048576) return (size / 1024).toFixed(2) + ' KB';
     else if (size < 1073741824) return (size / 1048576).toFixed(2) + ' MB';
     else return (size / 1073741824).toFixed(2) + ' GB';
 };
-
 const getFriendlyFileType = (mimeType) => {
     return mimeTypeMap[mimeType] || mimeType;
 };
-
 exports.getFiles = async () => {
     try {
         const files = await File.findAll();
@@ -47,7 +90,6 @@ exports.getFiles = async () => {
         throw new Error('Failed to retrieve files');
     }
 };
-
 exports.getFilesName = async (req, res) => {
     try {
         const files = await File.findAll();
@@ -62,7 +104,6 @@ exports.getFilesName = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
-
 exports.uploadFile = async (req, res) => {
     try {
         const userId = req.user.userId;
@@ -85,6 +126,8 @@ exports.uploadFile = async (req, res) => {
         const filePath = path.join(__dirname, '../uploads', fileName);
         fs.renameSync(req.file.path, filePath);
 
+        encryptFile(filePath); 
+
         const newFile = await File.create({
             fileName,
             filePath,
@@ -101,11 +144,16 @@ exports.uploadFile = async (req, res) => {
             error_message: null, 
         });
 
+        const tempFilePath = path.join(__dirname, '../uploads', `temp_${fileName}`);
+        decryptFile(filePath, tempFilePath);
+
         if (mimetype === 'application/pdf') {
-            await handlePdfOCR(filePath, newFile.id, newOCRLog.id);
+            await handlePdfOCR(tempFilePath, newFile.id, newOCRLog.id);
         } else if (mimetype.startsWith('image/')) {
-            await handleImageOCR(filePath, newFile.id, newOCRLog.id);
+            await handleImageOCR(tempFilePath, newFile.id, newOCRLog.id);
         }
+
+        fs.unlinkSync(tempFilePath);
 
         await AuditLog.create({
             user_id: userId,
@@ -120,7 +168,6 @@ exports.uploadFile = async (req, res) => {
         res.status(500).json({ error: 'File upload failed' });
     }
 };
-
 async function handlePdfOCR(filePath, fileId, ocrLogId) {
     const outputPath = path.join(__dirname, '../uploads/pdf_images');
     if (!fs.existsSync(outputPath)) {
@@ -155,7 +202,6 @@ async function handlePdfOCR(filePath, fileId, ocrLogId) {
         );
     }
 }
-
 async function handleImageOCR(filePath, fileId, ocrLogId) {
     try {
         const { data: { text } } = await Tesseract.recognize(filePath, 'eng', { logger: (m) => console.log(m) });
@@ -174,85 +220,6 @@ async function handleImageOCR(filePath, fileId, ocrLogId) {
         );
     }
 }
-
-exports.viewFile = async (req, res) => {
-    try {
-        const fileId = req.params.fileId;
-        const userId = req.user.userId;
-        const userRole = req.user.role;
-
-        const file = await File.findOne({ where: { id: fileId } });
-        if (!file) {
-            return res.status(404).json({ message: 'File not found' });
-        }
-
-        if (userRole === 'admin') {
-            return sendFile(file);
-        }
-
-        const canView = await hasPermissionToView(userId, fileId);
-        if (!canView) {
-            return res.status(403).json({ message: 'Permission denied: You do not have view permissions.' });
-        }
-
-        return sendFile(file);
-
-        async function sendFile(file) {
-            await AuditLog.create({
-                user_id: userId,
-                file_id: file.id,
-                action: 'view',
-                description: `File ${file.fileName} viewed.`,
-            });
-
-            const filePath = path.join(__dirname, '../uploads', file.fileName);
-            res.sendFile(filePath);
-        }
-    } catch (error) {
-        console.error('Error in viewFile method:', error);
-        res.status(500).json({ error: 'Failed to view file' });
-    }
-};
-
-exports.downloadFile = async (req, res) => {
-    try {
-        const userId = req.user.userId;
-        const userRole = req.user.role;
-        const fileName = req.params.filename;
-        const filePath = path.join(__dirname, '../uploads', fileName);
-
-        const file = await File.findOne({ where: { fileName } });
-        if (!file) {
-            return res.status(404).json({ message: 'File not found' });
-        }
-
-        if (userRole === 'admin') {
-            return downloadFileAction(file);
-        }
-
-        const canDownload = await hasPermissionToDownload(userId, file.id);
-        if (!canDownload) {
-            return res.status(403).json({ message: 'Permission denied: You do not have download permissions.' });
-        }
-
-        return downloadFileAction(file);
-
-        async function downloadFileAction(file) {
-            await AuditLog.create({
-                user_id: userId,
-                file_id: file.id,
-                action: 'download',
-                description: `File ${fileName} downloaded.`,
-            });
-
-            res.download(filePath, fileName);
-        }
-    } catch (error) {
-        console.error('Error in downloadFile method:', error);
-        res.status(500).json({ error: 'File download failed' });
-    }
-};
-
 exports.deleteFile = async (req, res) => {
     try {
         const userId = req.user.userId;
@@ -282,3 +249,73 @@ exports.deleteFile = async (req, res) => {
         res.status(500).json({ error: 'File deletion failed' });
     }
 };
+exports.previewFile = async (req, res) => {
+    try {
+        const { fileName } = req.params;
+        const file = await File.findOne({ where: { fileName } });
+
+        if (!file) {
+            return res.status(404).json({ message: 'File not found' });
+        }
+
+        const filePath = path.join(__dirname, '../uploads', file.fileName);
+        const tempFilePath = path.join(__dirname, '../uploads', `temp_preview_${file.fileName}`);
+
+        decryptFile(filePath, tempFilePath);
+
+        const mimeType = mime.lookup(file.fileName);
+        
+        const fileContent = fs.readFileSync(tempFilePath);
+
+        fs.unlinkSync(tempFilePath);
+
+        if (mimeType) {
+            res.setHeader('Content-Type', mimeType);
+        } else {
+            res.setHeader('Content-Type', 'application/octet-stream'); 
+        }
+
+        const sanitizedFileName = encodeURIComponent(fileName);
+
+        if (mimeType === 'application/pdf') {
+            res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${sanitizedFileName}`);
+            res.send(fileContent);
+        } else if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+            const htmlContent = convertDocxToHtml(fileContent);  
+            res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${sanitizedFileName}.html`);
+            res.send(htmlContent);
+        } else if (mimeType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
+            const htmlContent = convertPptxToHtml(fileContent);  
+            res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${sanitizedFileName}.html`);
+            res.send(htmlContent);
+        } else if (mimeType === 'application/vnd.ms-excel' || mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+            const htmlContent = convertExcelToHtml(fileContent); 
+            res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${sanitizedFileName}.html`);
+            res.send(htmlContent);
+        } else if (mimeType === 'text/plain') {
+            res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${sanitizedFileName}`);
+            res.send(fileContent.toString('utf-8'));
+        } else {
+            res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${sanitizedFileName}`);
+            res.send(fileContent);
+        }
+
+    } catch (error) {
+        console.error('File preview failed:', error);
+        res.status(500).json({ error: 'File preview failed' });
+    }
+};
+
+function convertDocxToHtml(fileContent) {
+    return mammoth.convertToHtml({ buffer: fileContent }).then(result => result.value);
+}
+
+function convertPptxToHtml(fileContent) {
+    return '<html><body><h1>PPTX content (placeholder)</h1></body></html>';
+}
+
+function convertExcelToHtml(fileContent) {
+    const xlsx = require('xlsx');
+    const workbook = xlsx.read(fileContent, { type: 'buffer' });
+    return xlsx.utils.sheet_to_html(workbook.Sheets[workbook.SheetNames[0]]);
+}
