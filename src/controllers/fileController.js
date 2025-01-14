@@ -222,10 +222,9 @@ async function handleImageOCR(filePath, fileId, ocrLogId) {
 }
 exports.deleteFile = async (req, res) => {
     try {
-        const userId = req.user.userId;
-        const { fileId } = req.params;
+        const { fileName } = req.params;
+        const file = await File.findOne({ where: { fileName } });
 
-        const file = await File.findOne({ where: { id: fileId } });
         if (!file) {
             return res.status(404).json({ message: 'File not found' });
         }
@@ -233,17 +232,9 @@ exports.deleteFile = async (req, res) => {
         const filePath = path.join(__dirname, '../uploads', file.fileName);
 
         await fs.promises.unlink(filePath);
-
-        await AuditLog.create({
-            user_id: userId,
-            file_id: file.id,
-            action: 'delete',
-            description: `File ${file.fileName} deleted.`,
-        });
-
         await file.destroy();
 
-        res.status(200).json({ message: 'File deleted successfully' });
+        res.redirect('/');
     } catch (error) {
         console.error('File deletion failed:', error);
         res.status(500).json({ error: 'File deletion failed' });
