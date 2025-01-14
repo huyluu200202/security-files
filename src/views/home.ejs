@@ -116,12 +116,18 @@
                                         <td>
                                             <%= file.uploadedBy %>
                                         </td>
-                                        <td>
+                                        <!-- <td>
                                             <a href="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
                                                 class="btn btn-primary btn-sm" download="<%= file.fileName %>">
                                                 <i class="fas fa-download"></i> Download
                                             </a>
-                                        </td>
+                                        </td> -->
+                                        <td>
+                                            <a href="<%= '/download/' + encodeURIComponent(file.fileName) %>"
+                                               class="btn btn-primary btn-sm">
+                                                <i class="fas fa-download"></i> Download
+                                            </a>
+                                        </td>                                                                              
                                         <td class="delete-column">
                                             <a href="/uploads/delete/<%= encodeURIComponent(file.fileName) %>"
                                                 class="btn btn-danger btn-sm"
@@ -219,13 +225,19 @@
                                                                         %>
                                                                 </td>
                                                                 <td>admin</td>
-                                                                <td>
+                                                                <!-- <td>
                                                                     <a href="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
                                                                         class="btn btn-primary btn-sm"
                                                                         download="<%= publicFile.fileName %>">
                                                                         <i class="fas fa-download"></i> Download
                                                                     </a>
-                                                                </td>
+                                                                </td> -->
+                                                                <td>
+                                                                    <a href="<%= '/download/' + encodeURIComponent(publicFile.fileName) %>"
+                                                                       class="btn btn-primary btn-sm">
+                                                                        <i class="fas fa-download"></i> Download
+                                                                    </a>
+                                                                </td>                                                                
                                                                 <td class="delete-column">
                                                                     <a href="/uploads/delete/<%= encodeURIComponent(publicFile.fileName) %>"
                                                                         class="btn btn-danger btn-sm"

@@ -58,6 +58,7 @@ router.post('/api/make-public/:fileId', authorizeAdmin, async (req, res) => {
         console.error('Error updating file status:', error.message);
         res.status(500).json({ error: 'Failed to update file status' });
     }
+
 });
 
 router.get('/api/permissions/view-download', adminController.checkViewDownloadPermission);

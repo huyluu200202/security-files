@@ -8,13 +8,14 @@ router.post('/api/login', userController.login);
 router.get('/', async (req, res) => {
     try {
         let token = req.cookies.token || null;
-        const publicFiles = await File.findAll({ where: { isPublic: true } });
 
         if (!token) {
             return res.redirect('/login');
         }
 
         const files = await File.findAll();
+        const publicFiles = await File.findAll({ where: { isPublic: true } });
+        
         res.render('home', {
             files,
             token,

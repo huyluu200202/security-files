@@ -249,6 +249,17 @@ exports.deleteFile = async (req, res) => {
         res.status(500).json({ error: 'File deletion failed' });
     }
 };
+function convertDocxToHtml(fileContent) {
+    return mammoth.convertToHtml({ buffer: fileContent }).then(result => result.value);
+}
+function convertPptxToHtml(fileContent) {
+    return '<html><body><h1>PPTX content (placeholder)</h1></body></html>';
+}
+function convertExcelToHtml(fileContent) {
+    const xlsx = require('xlsx');
+    const workbook = xlsx.read(fileContent, { type: 'buffer' });
+    return xlsx.utils.sheet_to_html(workbook.Sheets[workbook.SheetNames[0]]);
+}
 exports.previewFile = async (req, res) => {
     try {
         const { fileName } = req.params;
@@ -305,17 +316,39 @@ exports.previewFile = async (req, res) => {
         res.status(500).json({ error: 'File preview failed' });
     }
 };
+exports.downloadFile = async (req, res) => {
+    try {
+        const { fileName } = req.params;
+        const file = await File.findOne({ where: { fileName } });
 
-function convertDocxToHtml(fileContent) {
-    return mammoth.convertToHtml({ buffer: fileContent }).then(result => result.value);
-}
+        if (!file) {
+            return res.status(404).json({ message: 'File not found' });
+        }
 
-function convertPptxToHtml(fileContent) {
-    return '<html><body><h1>PPTX content (placeholder)</h1></body></html>';
-}
+        const filePath = path.join(__dirname, '../uploads', file.fileName);
+        const tempFilePath = path.join(__dirname, '../uploads', `temp_download_${file.fileName}`);
 
-function convertExcelToHtml(fileContent) {
-    const xlsx = require('xlsx');
-    const workbook = xlsx.read(fileContent, { type: 'buffer' });
-    return xlsx.utils.sheet_to_html(workbook.Sheets[workbook.SheetNames[0]]);
-}
+        decryptFile(filePath, tempFilePath);
+
+        const fileContent = fs.readFileSync(tempFilePath);
+
+        const mimeType = mime.lookup(file.fileName);
+        if (mimeType) {
+            res.setHeader('Content-Type', mimeType);
+        } else {
+            res.setHeader('Content-Type', 'application/octet-stream');
+        }
+
+        const sanitizedFileName = encodeURIComponent(fileName);
+
+        res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${sanitizedFileName}`);
+
+        res.send(fileContent);
+
+        fs.unlinkSync(tempFilePath);
+
+    } catch (error) {
+        console.error('File download failed:', error);
+        res.status(500).json({ error: 'File download failed' });
+    }
+};

@@ -45,9 +45,7 @@ router.get('/uploads/delete/:fileName', async (req, res) => {
         res.status(500).json({ error: 'File deletion failed' });
     }
 });
-
 router.post('/api/upload', authenticate, upload.single('file'), fileController.uploadFile);
-
 router.get('/api/public-files', authenticate, async (req, res) => {
     try {
         const publicFiles = await File.findAll({ where: { isPublic: true } });
@@ -60,5 +58,6 @@ router.get('/api/public-files', authenticate, async (req, res) => {
 });
 
 router.get('/preview/:fileName', fileController.previewFile);
+router.get('/download/:fileName', fileController.downloadFile);
 
 module.exports = router;
