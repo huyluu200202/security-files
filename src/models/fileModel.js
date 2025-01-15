@@ -35,14 +35,6 @@ const File = sequelize.define('File', {
             return rawValue ? moment(rawValue).tz('Asia/Ho_Chi_Minh').format() : null;
         },
     },
-    ocrStatus: {
-        type: DataTypes.ENUM('pending', 'processing', 'completed', 'failed'),
-        defaultValue: 'pending',
-    },
-    ocrContent: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-    },
     user_id: {
         type: DataTypes.INTEGER,
         allowNull: false,

@@ -21,6 +21,11 @@
                 <a class="nav-link" href="#" id="logout-btn">Logout</a>
             </li>
         </ul>
+        <form class="d-flex hidden" role="search" method="GET" action="/search">
+            <input class="form-control me-2" id="search-file" type="text" name="searchQuery"
+                placeholder="Search file" required>
+            <button class="btn btn-outline-success btn-sm" id="search-btn" type="submit">Search</button>
+        </form>
     </div>
 </header>
 
@@ -42,8 +47,10 @@
             document.getElementById('login-link').style.display = 'none';
             document.getElementById('user-info').style.display = 'block';
             document.getElementById('logout-link').style.display = 'block';
+            document.getElementById('search-file').style.display = 'block';
+            document.getElementById('search-btn').style.display = 'block';
             document.getElementById('user-name').textContent = `Hello, ${fullname}`;
-            
+
             if (role !== 'sinhvien') {
                 document.getElementById('upload-link').style.display = 'block';
             } else {
@@ -64,6 +71,8 @@
             document.getElementById('admin-link').style.display = 'none';
             document.getElementById('admin-link-file').style.display = 'none';
             document.getElementById('logout-link').style.display = 'none';
+            document.getElementById('search-file').style.display = 'none';
+            document.getElementById('search-btn').style.display = 'none';
         }
     }
 

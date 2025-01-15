@@ -9,10 +9,11 @@ const pdf2pic = require("pdf2pic");
 const crypto = require('crypto');
 const mime = require('mime-types');
 const mammoth = require('mammoth');
+const { Sequelize } = require('sequelize');
 
 const algorithm = 'aes-256-cbc';
-const key = crypto.randomBytes(32); 
-const iv = crypto.randomBytes(16); 
+const key = crypto.randomBytes(32);
+const iv = crypto.randomBytes(16);
 
 function encryptFile(filePath) {
     const data = fs.readFileSync(filePath);
@@ -34,7 +35,7 @@ function encryptFile(filePath) {
     const keyPath = path.join(keyDir, path.basename(filePath) + '.key');
     const ivPath = path.join(ivDir, path.basename(filePath) + '.iv');
 
-    fs.writeFileSync(keyPath, key); 
+    fs.writeFileSync(keyPath, key);
     fs.writeFileSync(ivPath, iv);
 }
 function decryptFile(encryptedFilePath, outputFilePath) {
@@ -46,8 +47,8 @@ function decryptFile(encryptedFilePath, outputFilePath) {
     const keyPath = path.join(keyDir, path.basename(encryptedFilePath) + '.key');
     const ivPath = path.join(ivDir, path.basename(encryptedFilePath) + '.iv');
 
-    const key = fs.readFileSync(keyPath); 
-    const iv = fs.readFileSync(ivPath); 
+    const key = fs.readFileSync(keyPath);
+    const iv = fs.readFileSync(ivPath);
     const decipher = crypto.createDecipheriv(algorithm, key, iv);
 
     const decrypted = Buffer.concat([decipher.update(data), decipher.final()]);
@@ -125,13 +126,13 @@ exports.uploadFile = async (req, res) => {
 
         const existingFile = await File.findOne({
             where: {
-                fileName, 
+                fileName,
                 friendlyFileType,
-                formattedFileSize,    
-                user_id: userId, 
+                formattedFileSize,
+                user_id: userId,
                 uploadedBy: user.username,
             }
-        });          
+        });
 
         if (existingFile) {
             return res.status(409).json({ message: 'File already uploaded.' });
@@ -140,7 +141,7 @@ exports.uploadFile = async (req, res) => {
         const filePath = path.join(__dirname, '../uploads', fileName);
         fs.renameSync(req.file.path, filePath);
 
-        encryptFile(filePath); 
+        encryptFile(filePath);
 
         const newFile = await File.create({
             fileName,
@@ -189,7 +190,7 @@ async function handlePdfOCR(filePath, fileId, ocrLogId) {
     }
 
     const options = {
-        density: 100,  
+        density: 100,
         saveFilename: 'pdf_to_image',
         savePath: outputPath,
         format: 'png',
@@ -199,14 +200,14 @@ async function handlePdfOCR(filePath, fileId, ocrLogId) {
 
     const converter = pdf2pic.fromPath(filePath, options);
     try {
-        const resolve = await converter(1); 
+        const resolve = await converter(1);
         const { data: { text } } = await Tesseract.recognize(resolve.path, 'eng', { logger: (m) => console.log(m) });
-        
+
         await OCRLog.update(
             { status: 'completed', result: text },
             { where: { id: ocrLogId } }
         );
-        
+
         console.log('OCR Text:', text);
     } catch (error) {
         console.error('PDF conversion or OCR processing failed:', error);
@@ -219,12 +220,12 @@ async function handlePdfOCR(filePath, fileId, ocrLogId) {
 async function handleImageOCR(filePath, fileId, ocrLogId) {
     try {
         const { data: { text } } = await Tesseract.recognize(filePath, 'eng', { logger: (m) => console.log(m) });
-        
+
         await OCRLog.update(
             { status: 'completed', result: text },
             { where: { id: ocrLogId } }
         );
-        
+
         console.log('OCR Text:', text);
     } catch (error) {
         console.error('Image OCR failed:', error);
@@ -280,7 +281,7 @@ exports.previewFile = async (req, res) => {
         decryptFile(filePath, tempFilePath);
 
         const mimeType = mime.lookup(file.fileName);
-        
+
         const fileContent = fs.readFileSync(tempFilePath);
 
         fs.unlinkSync(tempFilePath);
@@ -288,7 +289,7 @@ exports.previewFile = async (req, res) => {
         if (mimeType) {
             res.setHeader('Content-Type', mimeType);
         } else {
-            res.setHeader('Content-Type', 'application/octet-stream'); 
+            res.setHeader('Content-Type', 'application/octet-stream');
         }
 
         const sanitizedFileName = encodeURIComponent(fileName);
@@ -297,15 +298,15 @@ exports.previewFile = async (req, res) => {
             res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${sanitizedFileName}`);
             res.send(fileContent);
         } else if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-            const htmlContent = convertDocxToHtml(fileContent);  
+            const htmlContent = convertDocxToHtml(fileContent);
             res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${sanitizedFileName}.html`);
             res.send(htmlContent);
         } else if (mimeType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
-            const htmlContent = convertPptxToHtml(fileContent);  
+            const htmlContent = convertPptxToHtml(fileContent);
             res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${sanitizedFileName}.html`);
             res.send(htmlContent);
         } else if (mimeType === 'application/vnd.ms-excel' || mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-            const htmlContent = convertExcelToHtml(fileContent); 
+            const htmlContent = convertExcelToHtml(fileContent);
             res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${sanitizedFileName}.html`);
             res.send(htmlContent);
         } else if (mimeType === 'text/plain') {
@@ -355,5 +356,40 @@ exports.downloadFile = async (req, res) => {
     } catch (error) {
         console.error('File download failed:', error);
         res.status(500).json({ error: 'File download failed' });
+    }
+};
+exports.searchFile = async (req, res) => {
+    try {
+        const { searchQuery } = req.query; 
+        if (!searchQuery) {
+            return res.send(`<script>alert('Search query is required'); window.location.href = '/';</script>`);
+        }
+
+        let whereClause = {};  
+
+        if (/\d+(KB|MB|GB)/.test(searchQuery)) {
+            whereClause.formattedFileSize = { [Sequelize.Op.like]: `%${searchQuery}%` };
+        } else if (['pdf', 'word', 'excel', 'image', 'ppt'].some(type => searchQuery.toLowerCase().includes(type))) {
+            whereClause.friendlyFileType = { [Sequelize.Op.like]: `%${searchQuery}%` };
+        } else {
+            whereClause.fileName = { [Sequelize.Op.like]: `%${searchQuery}%` };
+        }
+
+        const files = await File.findAll({ where: whereClause });
+
+        if (files.length === 0) {
+            return res.send(`<script>alert('No files found matching the search criteria.'); window.location.href = '/';</script>`);
+        }
+
+        const filesWithFriendlyTypes = files.map(file => ({
+            ...file.dataValues,
+            friendlyFileType: getFriendlyFileType(file.friendlyFileType),
+            fileSize: file.formattedFileSize,
+        }));
+        res.render('searchResults', { files: filesWithFriendlyTypes });
+
+    } catch (error) {
+        console.error('File search failed:', error);
+        res.send(`<script>alert('File search failed. Please try again.'); window.location.href = '/';</script>`);
     }
 };

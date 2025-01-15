@@ -37,5 +37,6 @@ router.get('/api/public-files', authenticate, async (req, res) => {
 router.get('/preview/:fileName', fileController.previewFile);
 router.get('/delete/:fileName', fileController.deleteFile);
 router.get('/download/:fileName', fileController.downloadFile);
+router.get('/search', fileController.searchFile);
 
 module.exports = router;

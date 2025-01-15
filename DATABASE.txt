@@ -20,8 +20,6 @@ CREATE TABLE files (
     friendlyFileType VARCHAR(255),
     formattedFileSize VARCHAR(50),
     uploadedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    ocrStatus ENUM('pending', 'processing', 'completed', 'failed') DEFAULT 'pending',
-    ocrContent TEXT,
     user_id VARCHAR(50) NOT NULL,
     uploadedBy VARCHAR(255) NOT NULL,
     isPublic BOOLEAN DEFAULT FALSE,
