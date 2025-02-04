@@ -124,10 +124,10 @@
                                         </td> -->
                                         <td>
                                             <a href="<%= '/download/' + encodeURIComponent(file.fileName) %>"
-                                               class="btn btn-primary btn-sm">
+                                                class="btn btn-primary btn-sm">
                                                 <i class="fas fa-download"></i> Download
                                             </a>
-                                        </td>                                                                              
+                                        </td>
                                         <td class="delete-column">
                                             <a href="/delete/<%= encodeURIComponent(file.fileName) %>"
                                                 class="btn btn-danger btn-sm"
@@ -146,7 +146,7 @@
 
                                                     <% if (publicFiles && publicFiles.length> 0) { %>
                                                         <% publicFiles.forEach(publicFile=> { %>
-                                                            <tr>
+                                                            <tr class="public-file-row">
                                                                 <td>
                                                                     <%= publicFile.fileName %>
                                                                         <% if
@@ -234,10 +234,10 @@
                                                                 </td> -->
                                                                 <td>
                                                                     <a href="<%= '/download/' + encodeURIComponent(publicFile.fileName) %>"
-                                                                       class="btn btn-primary btn-sm">
+                                                                        class="btn btn-primary btn-sm">
                                                                         <i class="fas fa-download"></i> Download
                                                                     </a>
-                                                                </td>                                                                
+                                                                </td>
                                                                 <td class="delete-column">
                                                                     <a href="/delete/<%= encodeURIComponent(publicFile.fileName) %>"
                                                                         class="btn btn-danger btn-sm"
@@ -254,8 +254,6 @@
                                                                     </tr>
                                                                     <% } %>
                     </tbody>
-
-
                 </table>
                 <div class="mt-4">
                     <a href="/upload" class="btn btn-info m-0" id="upload-section">
@@ -359,11 +357,18 @@
                     if (role === 'sinhvien') {
                         const uploadSection = document.getElementById('upload-section');
                         const deleteColumns = document.querySelectorAll('.delete-column');
-
+                        // Ẩn cột upload
                         if (uploadSection) {
                             uploadSection.style.display = 'none';
                             console.log('Upload section hidden');
                         }
+                        // Ẩn các file public với role sinhvien
+                        const publicFileRows = document.querySelectorAll('.public-file-row');
+                        publicFileRows.forEach(row => {
+                            row.style.display = 'none';
+                            console.log('Public file row hidden for sinhvien');
+                        });
+                        // Ẩn cột delete
                         deleteColumns.forEach(column => {
                             column.style.display = 'none';
                             console.log('Delete column hidden');

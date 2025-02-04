@@ -70,3 +70,17 @@ CREATE TABLE black_list_ip_address (
     last_attempt_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     blocked_at TIMESTAMP NULL DEFAULT NULL
 );
+
+
+DROP TABLE IF EXISTS `black_list_ip_address`;
+CREATE TABLE black_list_ip_address (
+    id VARCHAR(50) NOT NULL PRIMARY KEY, 
+    ip_address VARCHAR(255) NOT NULL UNIQUE,  
+    failed_attempts INT DEFAULT 0,           
+    is_blocked BOOLEAN DEFAULT FALSE,       
+    blocked_at TIMESTAMP NULL,             
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
+    last_attempt_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  
+    INDEX ip_address_index (ip_address)  
+);
+

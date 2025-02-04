@@ -14,18 +14,21 @@ exports.login = async (req, res) => {
             return res.status(404).json({ message: 'Username does not exist' });
         }
 
+        // Kiểm tra nếu IP đã bị chặn
         const blockedIp = await BlackListIp.findOne({ where: { ip_address: ipAddress } });
-
-        if (blockedIp) {
-            return res.status(403).json({ message: 'This IP has been permanently blocked.' });
+        if (blockedIp && blockedIp.is_blocked) {
+            return res.status(403).json({ message: 'This IP has been permanently blocked due to multiple failed login attempts.' });
         }
 
+        // Kiểm tra mật khẩu
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
+            // Gọi hàm handleFailedLogin để kiểm tra và chặn IP nếu cần
             await handleFailedLogin(ipAddress);
             return res.status(401).json({ message: 'Invalid password' });
         }
 
+        // Tạo token và trả về kết quả đăng nhập thành công
         const token = jwt.sign(
             { userId: user.id, username: user.username, fullname: user.fullname, role: user.role },
             '06ffc9c35d1a596406dbc2492b4d79db1976597a91885472def9060e6fa581eb',
@@ -51,24 +54,32 @@ exports.login = async (req, res) => {
 
 async function handleFailedLogin(ipAddress) {
     try {
+        // Tìm bản ghi IP trong bảng BlackListIp
         let ipRecord = await BlackListIp.findOne({ where: { ip_address: ipAddress } });
 
         if (ipRecord) {
+            // Tăng số lần thất bại lên 1
             ipRecord.failed_attempts += 1;
-            ipRecord.last_attempt_at = new Date();
+            ipRecord.last_attempt_at = new Date(); // Cập nhật thời gian lần đăng nhập thất bại gần nhất
 
-            if (ipRecord.failed_attempts >= 5) {
+            // Kiểm tra nếu số lần thất bại >= 5 và IP chưa bị block
+            if (ipRecord.failed_attempts >= 5 && !ipRecord.is_blocked) {
+                // Chặn IP và ghi lại thời gian block
                 ipRecord.is_blocked = true;
                 ipRecord.blocked_at = new Date();
                 console.log(`Blocked IP: ${ipAddress} due to multiple failed login attempts.`);
             }
 
+            // Lưu lại thông tin bản ghi IP
             await ipRecord.save();
         } else {
+            // Nếu không có bản ghi IP, tạo mới bản ghi và tăng `failed_attempts` từ 1
             await BlackListIp.create({
                 id: uuidv4(),
                 ip_address: ipAddress,
-                failed_attempts: 1,
+                failed_attempts: 1,  // Đặt `failed_attempts` là 1 lần sai mật khẩu
+                is_blocked: false,  // Ban đầu chưa bị block
+                created_at: new Date(),
                 last_attempt_at: new Date()
             });
         }
