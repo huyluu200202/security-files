@@ -9,6 +9,7 @@ CREATE TABLE users (
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role ENUM('sinhvien', 'giangvien', 'admin') DEFAULT 'sinhvien',
+    lastUploadAt TIMESTAMP NULL DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -19,6 +20,7 @@ CREATE TABLE files (
     filePath VARCHAR(255) NOT NULL,
     friendlyFileType VARCHAR(255),
     formattedFileSize VARCHAR(50),
+    fileHash VARCHAR(64) UNIQUE NOT NULL,
     uploadedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     user_id VARCHAR(50) NOT NULL,
     uploadedBy VARCHAR(255) NOT NULL,

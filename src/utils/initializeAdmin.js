@@ -31,31 +31,31 @@ const initializeAdminAccount = async () => {
 
         const adminUserId = adminUser.id; 
 
-        const defaultFileExists = await File.findOne({ where: { fileName: 'default_file.txt' } });
-        let defaultFile;
+        // const defaultFileExists = await File.findOne({ where: { fileName: 'default_file.txt' } });
+        // let defaultFile;
 
-        if (!defaultFileExists) {
-            const defaultFileName = 'default_file.txt';
-            const defaultFilePath = path.join(__dirname, '../uploads', defaultFileName);
+        // if (!defaultFileExists) {
+        //     const defaultFileName = 'default_file.txt';
+        //     const defaultFilePath = path.join(__dirname, '../uploads', defaultFileName);
 
-            if (!fs.existsSync(defaultFilePath)) {
-                fs.writeFileSync(defaultFilePath, 'This is a default file.');
-            }
+        //     if (!fs.existsSync(defaultFilePath)) {
+        //         fs.writeFileSync(defaultFilePath, 'This is a default file.');
+        //     }
 
-            defaultFile = await File.create({
-                id: uuidv4(),
-                fileName: defaultFileName,
-                filePath: defaultFilePath,
-                friendlyFileType: 'Text File',
-                formattedFileSize: '0 KB',
-                user_id: adminUserId, 
-                uploadedBy: 'admin'
-            });
+        //     defaultFile = await File.create({
+        //         id: uuidv4(),
+        //         fileName: defaultFileName,
+        //         filePath: defaultFilePath,
+        //         friendlyFileType: 'Text File',
+        //         formattedFileSize: '0 KB',
+        //         user_id: adminUserId, 
+        //         uploadedBy: 'admin'
+        //     });
 
-            console.log('Default file created!');
-        } else {
-            defaultFile = defaultFileExists;
-        }
+        //     console.log('Default file created!');
+        // } else {
+        //     defaultFile = defaultFileExists;
+        // }
 
         const teacherExists = await User.findOne({ where: { username: 'giangvien1' } });
         if (!teacherExists) {

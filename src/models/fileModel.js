@@ -1,30 +1,35 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../configs/database');
-const User = require('../models/userModel');
+const User = require('./userModel'); // Đảm bảo đúng đường dẫn tới model User
 const moment = require('moment-timezone');
 const { v4: uuidv4 } = require('uuid');
 
 const File = sequelize.define('File', {
     id: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(255),
         defaultValue: () => uuidv4(),
         primaryKey: true,
     },
     fileName: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(255),
         allowNull: false,
     },
     filePath: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(255),
         allowNull: false,
     },
     friendlyFileType: {
-        type: DataTypes.STRING(255),  
+        type: DataTypes.STRING(255),
         allowNull: true,
     },
     formattedFileSize: {
-        type: DataTypes.STRING(50),  
+        type: DataTypes.STRING(50),
         allowNull: true,
+    },
+    fileHash: { // ➕ Thêm cột fileHash
+        type: DataTypes.STRING(64),
+        allowNull: false,
+        unique: true, // Đảm bảo không có file trùng nội dung
     },
     uploadedAt: {
         type: DataTypes.DATE,
@@ -36,30 +41,31 @@ const File = sequelize.define('File', {
         },
     },
     user_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING(50),
         allowNull: false,
         references: {
             model: User,
-            key: 'id'
-        }
+            key: 'id',
+        },
+        onDelete: 'CASCADE',
     },
-    uploadedBy: { 
-        type: DataTypes.STRING,
+    uploadedBy: {
+        type: DataTypes.STRING(255),
         allowNull: false,
         references: {
-            model: User, 
-            key: 'username', 
+            model: User,
+            key: 'username',
         },
+        onDelete: 'CASCADE',
     },
     isPublic: {
         type: DataTypes.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
     },
-    
 }, {
     sequelize,
     tableName: 'files',
-    timestamps: false,
+    timestamps: false, // Không tự động thêm createdAt, updatedAt
 });
 
 module.exports = File;

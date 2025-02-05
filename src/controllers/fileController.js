@@ -10,6 +10,7 @@ const crypto = require('crypto');
 const mime = require('mime-types');
 const mammoth = require('mammoth');
 const { Sequelize } = require('sequelize');
+const moment = require('moment');
 
 const algorithm = 'aes-256-cbc';
 const key = crypto.randomBytes(32);
@@ -119,39 +120,54 @@ exports.uploadFile = async (req, res) => {
             return res.status(400).json({ message: 'User does not exist' });
         }
 
+        // Kiểm tra thời gian giữa các lần upload (1 phút)
+        const lastUploadAt = user.lastUploadAt;
+        const currentTime = moment();
+        if (lastUploadAt && moment(lastUploadAt).add(1, 'minute').isAfter(currentTime)) {
+            return res.status(429).json({ 
+                message: `Please wait ${moment(lastUploadAt).add(1, 'minute').diff(currentTime, 'seconds')} seconds before uploading another file.`
+            });
+        }
+
         const { originalname, mimetype, size } = req.file;
         const fileName = Buffer.from(originalname, 'latin1').toString('utf8');
         const friendlyFileType = getFriendlyFileType(mimetype);
         const formattedFileSize = convertFileSize(size);
 
-        const existingFile = await File.findOne({
-            where: {
-                fileName,
-                friendlyFileType,
-                formattedFileSize,
-                user_id: userId,
-                uploadedBy: user.username,
-            }
-        });
-
-        if (existingFile) {
-            return res.status(409).json({ message: 'File already uploaded.' });
-        }
-
+        // Tính hash của file để kiểm tra trùng lặp
         const filePath = path.join(__dirname, '../uploads', fileName);
         fs.renameSync(req.file.path, filePath);
 
+        const fileBuffer = fs.readFileSync(filePath);
+        const fileHash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+
+        // Kiểm tra file đã tồn tại dựa trên hash
+        const existingFile = await File.findOne({ where: { fileHash } });
+        if (existingFile) {
+            fs.unlinkSync(filePath); // Xóa file tạm nếu trùng
+            return res.status(409).json({ 
+                message: 'File already uploaded.',
+                uploadedBy: existingFile.uploadedBy, // Thông báo ai đã upload
+                uploadDate: existingFile.uploadedAt
+            });
+        }
+
+        // Mã hóa file trước khi lưu
         encryptFile(filePath);
 
+        // Lưu thông tin file mới vào database
         const newFile = await File.create({
             fileName,
             filePath,
+            fileHash, // Lưu hash vào CSDL
             friendlyFileType,
             formattedFileSize,
             user_id: userId,
             uploadedBy: user.username,
+            uploadedAt: currentTime.toISOString(), // Lưu thời gian upload
         });
 
+        // Lưu vào bảng OCRLog (quét nội dung file)
         const newOCRLog = await OCRLog.create({
             file_id: newFile.id,
             status: 'pending',
@@ -159,6 +175,7 @@ exports.uploadFile = async (req, res) => {
             error_message: null,
         });
 
+        // Giải mã file tạm để xử lý OCR
         const tempFilePath = path.join(__dirname, '../uploads', `temp_${fileName}`);
         decryptFile(filePath, tempFilePath);
 
@@ -168,14 +185,19 @@ exports.uploadFile = async (req, res) => {
             await handleImageOCR(tempFilePath, newFile.id, newOCRLog.id);
         }
 
-        fs.unlinkSync(tempFilePath);
+        fs.unlinkSync(tempFilePath); // Xóa file tạm sau khi xử lý
 
+        // Lưu lịch sử upload vào bảng AuditLog
         await AuditLog.create({
             user_id: userId,
             file_id: newFile.id,
             action: 'upload',
             description: `File ${fileName} uploaded.`,
         });
+
+        // Cập nhật thời gian upload cuối cùng của user
+        user.lastUploadAt = currentTime.toISOString();
+        await user.save();
 
         res.status(201).json(newFile);
     } catch (error) {
