@@ -26,10 +26,10 @@ const File = sequelize.define('File', {
         type: DataTypes.STRING(50),
         allowNull: true,
     },
-    fileHash: { // ➕ Thêm cột fileHash
+    fileHash: { // 
         type: DataTypes.STRING(64),
         allowNull: false,
-        unique: true, // Đảm bảo không có file trùng nội dung
+        unique: true, 
     },
     uploadedAt: {
         type: DataTypes.DATE,

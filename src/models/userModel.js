@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../configs/database');
 const { v4: uuidv4 } = require('uuid');
-const bcrypt = require('bcrypt');
 
 const User = sequelize.define('User', {
   id: {
@@ -40,10 +39,9 @@ const User = sequelize.define('User', {
     type: DataTypes.ENUM('sinhvien', 'giangvien', 'admin'),
     defaultValue: 'sinhvien',
   },
-  // Thêm cột lastUploadAt
   lastUploadAt: {
     type: DataTypes.DATE,
-    allowNull: true, // Có thể null nếu chưa từng upload file
+    allowNull: true,
   },
 }, {
   sequelize,

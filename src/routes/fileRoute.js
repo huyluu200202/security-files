@@ -3,7 +3,6 @@ const multer = require('multer');
 const path = require('path');
 const fileController = require('../controllers/fileController');
 const authenticate = require('../middlewares/authenticate');
-const fs = require('fs');
 const File = require('../models/fileModel');
 const uploadFileCheck = require('../middlewares/uploadFileCheck');
 
@@ -19,23 +18,9 @@ const storage = multer.diskStorage({
     },
 });
 
-// const storage = multer.diskStorage({
-//     destination: (req, file, cb) => {
-//         const tempFolder = path.join(__dirname, '../uploads/temp_uploads');
-//         if (!fs.existsSync(tempFolder)) {
-//             fs.mkdirSync(tempFolder, { recursive: true });
-//         }
-//         cb(null, tempFolder);
-//     },
-//     filename: (req, file, cb) => {
-//         const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
-//         cb(null, `${uniqueSuffix}${path.extname(file.originalname)}`); 
-//     },
-// });
-
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 50 * 1024 * 1024 }, // max file size 50MB
+    limits: { fileSize: 50 * 1024 * 1024 },
 }).single('file');
 
 router.get('/upload', (req, res) => {
