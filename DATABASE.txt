@@ -73,7 +73,6 @@ CREATE TABLE black_list_ip_address (
     blocked_at TIMESTAMP NULL DEFAULT NULL
 );
 
-
 DROP TABLE IF EXISTS `black_list_ip_address`;
 CREATE TABLE black_list_ip_address (
     id VARCHAR(50) NOT NULL PRIMARY KEY, 

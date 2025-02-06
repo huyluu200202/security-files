@@ -1,10 +1,10 @@
 const User = require('../models/userModel');
-const File = require('../models/fileModel');
+// const File = require('../models/fileModel');
 const Permission = require('../models/permissionModel');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
-const path = require('path');
-const fs = require('fs');
+// const path = require('path');
+// const fs = require('fs');
 
 const initializeAdminAccount = async () => {
     try {
@@ -70,13 +70,13 @@ const initializeAdminAccount = async () => {
                 role: 'giangvien',
             });
 
-            await Permission.create({
-                user_id: teacherUser.id,
-                file_id: defaultFile.id,
-                can_view: false,
-                can_download: false,
-                can_edit: false,
-            });
+            // await Permission.create({
+            //     user_id: teacherUser.id,
+            //     // file_id: defaultFile.id,
+            //     can_view: false,
+            //     can_download: false,
+            //     can_edit: false,
+            // });
 
             console.log('Teacher account created!');
         }
@@ -94,13 +94,13 @@ const initializeAdminAccount = async () => {
                 role: 'sinhvien',
             });
 
-            await Permission.create({
-                user_id: studentUser.id,
-                file_id: defaultFile.id,
-                can_view: false,
-                can_download: false,
-                can_edit: false,
-            });
+            // await Permission.create({
+            //     user_id: studentUser.id,
+            //     // file_id: defaultFile.id,
+            //     can_view: false,
+            //     can_download: false,
+            //     can_edit: false,
+            // });
 
             console.log('Student account created!');
         }

@@ -123,9 +123,9 @@ exports.uploadFile = async (req, res) => {
         // Kiểm tra thời gian giữa các lần upload (1 phút)
         const lastUploadAt = user.lastUploadAt;
         const currentTime = moment();
-        if (lastUploadAt && moment(lastUploadAt).add(1, 'minute').isAfter(currentTime)) {
+        if (lastUploadAt && moment(lastUploadAt).add(30, 'seconds').isAfter(currentTime)) {
             return res.status(429).json({ 
-                message: `Please wait ${moment(lastUploadAt).add(1, 'minute').diff(currentTime, 'seconds')} seconds before uploading another file.`
+                message: `Please wait ${moment(lastUploadAt).add(30, 'seconds').diff(currentTime, 'seconds')} seconds before uploading another file.` 
             });
         }
 
@@ -134,10 +134,13 @@ exports.uploadFile = async (req, res) => {
         const friendlyFileType = getFriendlyFileType(mimetype);
         const formattedFileSize = convertFileSize(size);
 
-        // Tính hash của file để kiểm tra trùng lặp
+        // Chuyển file đến thư mục lưu trữ
         const filePath = path.join(__dirname, '../uploads', fileName);
+        
+        // Đổi tên file và lưu trữ trong thư mục uploads
         fs.renameSync(req.file.path, filePath);
 
+        // Tính hash của file để kiểm tra trùng lặp
         const fileBuffer = fs.readFileSync(filePath);
         const fileHash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
 
@@ -205,6 +208,7 @@ exports.uploadFile = async (req, res) => {
         res.status(500).json({ error: 'File upload failed' });
     }
 };
+
 async function handlePdfOCR(filePath, fileId, ocrLogId) {
     const outputPath = path.join(__dirname, '../uploads/pdf_images');
     if (!fs.existsSync(outputPath)) {
