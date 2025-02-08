@@ -14,7 +14,6 @@ exports.login = async (req, res) => {
             return res.status(404).json({ message: 'Username does not exist' });
         }
 
-        // Kiểm tra nếu IP đã bị chặn
         const blockedIp = await BlackListIp.findOne({ where: { ip_address: ipAddress } });
         if (blockedIp && blockedIp.is_blocked) {
             return res.status(403).json({ message: 'This IP has been permanently blocked due to multiple failed login attempts.' });
@@ -54,7 +53,6 @@ exports.login = async (req, res) => {
 
 async function handleFailedLogin(ipAddress) {
     try {
-        // Tìm bản ghi IP trong bảng BlackListIp
         let ipRecord = await BlackListIp.findOne({ where: { ip_address: ipAddress } });
 
         if (ipRecord) {

@@ -12,10 +12,13 @@
                 <a class="nav-link" href="/upload">Upload File</a>
             </li>
             <li class="nav-item" id="admin-link" style="display: none;">
-                <a class="nav-link" href="/permissions">Manage Users</a>
+                <a class="nav-link" href="/user-manegement">Manage Users</a>
+            </li>
+            <li class="nav-item" id="user-link-file" style="display: none;">
+                <a class="nav-link" href="/userFiles">User Files</a>
             </li>
             <li class="nav-item" id="admin-link-file" style="display: none;">
-                <a class="nav-link" href="/adminFiles">Manage Files</a>
+                <a class="nav-link" href="/adminFiles">Admin Files</a>
             </li>
             <li class="nav-item" id="logout-link" style="display: none;">
                 <a class="nav-link" href="#" id="logout-btn">Logout</a>
@@ -60,9 +63,12 @@
             if (role === 'admin') {
                 document.getElementById('admin-link').style.display = 'block';
                 document.getElementById('admin-link-file').style.display = 'block';
+                document.getElementById('user-link-file').style.display = 'block';
+                user-link-file
             } else {
                 document.getElementById('admin-link').style.display = 'none';
                 document.getElementById('admin-link-file').style.display = 'none';
+                document.getElementById('user-link-file').style.display = 'none';
             }
         } else {
             document.getElementById('login-link').style.display = 'block';
@@ -73,6 +79,7 @@
             document.getElementById('logout-link').style.display = 'none';
             document.getElementById('search-file').style.display = 'none';
             document.getElementById('search-btn').style.display = 'none';
+            document.getElementById('user-link-file').style.display = 'none';
         }
     }
 

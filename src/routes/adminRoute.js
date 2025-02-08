@@ -5,7 +5,7 @@ const authorizeAdmin = require('../middlewares/authorizeAdmin');
 const User = require('../models/userModel');
 const File = require('../models/fileModel');
 
-router.get('/permissions', authorizeAdmin, async (req, res) => {
+router.get('/user-manegement', authorizeAdmin, async (req, res) => {
     try {
         const adminUser = await User.findOne({ where: { username: 'admin' } });
         if (!adminUser) {
@@ -41,6 +41,24 @@ router.get('/adminFiles', authorizeAdmin, async (req, res) => {
     }
 });
 
+router.get('/userFiles', authorizeAdmin, async (req, res) => {
+    try {
+        const adminUser = await User.findAll({ where: { username: 'admin' } });
+        if (!adminUser) {
+            return res.status(404).json({ error: 'Admin user not found' });
+        }
+        const adminUserId = adminUser.id;
+
+        const users = await User.findAll();
+        const files = await File.findAll();
+
+        res.render('userFiles', { users, files, adminUserId });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch data' });
+    }
+});
+
 router.post('/api/make-public/:fileId', authorizeAdmin, async (req, res) => {
     const { fileId } = req.params;
 
@@ -58,11 +76,12 @@ router.post('/api/make-public/:fileId', authorizeAdmin, async (req, res) => {
         console.error('Error updating file status:', error.message);
         res.status(500).json({ error: 'Failed to update file status' });
     }
-
 });
 
-router.get('/api/permissions/view-download', adminController.checkViewDownloadPermission);
-router.post('/api/permissions/view-download', authorizeAdmin, adminController.assignViewDownloadPermission);
+
+
+// router.get('/api/permissions/view-download', adminController.checkViewDownloadPermission);
+// router.post('/api/permissions/view-download', authorizeAdmin, adminController.assignViewDownloadPermission);
 router.delete('/api/users/:userId', authorizeAdmin, adminController.deleteUser);
 
 module.exports = router;
