@@ -1,34 +1,35 @@
 <header class="navbar navbar-expand-lg navbar-light bg-body-tertiary">
-    <a class="navbar-brand ms-2" href="/">Home</a>
+    <a class="navbar-brand ms-2" href="/">Trang chủ</a>
     <div class="collapse navbar-collapse d-flex justify-content-between w-100">
         <ul class="navbar-nav mb-2 mb-lg-0">
             <li class="nav-item" id="login-link">
-                <a class="nav-link" href="/login">Login</a>
+                <a class="nav-link" href="/login">Đăng nhập</a>
             </li>
             <li class="nav-item" id="user-info" style="display: none;">
                 <span class="nav-link" id="user-name"></span>
             </li>
             <li class="nav-item" id="upload-link" style="display: none;">
-                <a class="nav-link" href="/upload">Upload File</a>
+                <a class="nav-link" href="/upload">Thêm tệp</a>
             </li>
             <li class="nav-item" id="admin-link" style="display: none;">
-                <a class="nav-link" href="/user-manegement">Manage Users</a>
+                <a class="nav-link" href="/user-manegement">Quản lý người dùng</a>
             </li>
             <li class="nav-item" id="user-link-file" style="display: none;">
-                <a class="nav-link" href="/userFiles">User Files</a>
+                <a class="nav-link" href="/userFiles">Quản lý tài liệu</a>
             </li>
             <li class="nav-item" id="admin-link-file" style="display: none;">
-                <a class="nav-link" href="/adminFiles">Admin Files</a>
+                <a class="nav-link" href="/adminFiles">Tài liệu admin</a>
             </li>
             <li class="nav-item" id="logout-link" style="display: none;">
-                <a class="nav-link" href="#" id="logout-btn">Logout</a>
+                <a class="nav-link" href="#" id="logout-btn">Đăng xuất</a>
             </li>
         </ul>
-        <form class="d-flex hidden" role="search" method="GET" action="/search">
+        <form class="d-flex ms-auto" role="search" method="GET" action="/search">
             <input class="form-control me-2" id="search-file" type="text" name="searchQuery"
-                placeholder="Search file" required>
-            <button class="btn btn-outline-success btn-sm" id="search-btn" type="submit">Search</button>
+                placeholder="Tìm kiếm tệp tin" required>
+            <button class="btn btn-outline-success btn-sm w-50" id="search-btn" type="submit">Tìm kiếm</button>
         </form>
+        
     </div>
 </header>
 

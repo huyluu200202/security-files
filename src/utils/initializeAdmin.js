@@ -40,15 +40,15 @@ const initializeAdminAccount = async () => {
             console.log('Teacher account created!');
         }
 
-        const studentExists = await User.findOne({ where: { username: 'sinhvien2' } });
+        const studentExists = await User.findOne({ where: { username: 'sinhvien1' } });
         if (!studentExists) {
             const hashedStudentPassword = await bcrypt.hash('123456', 10);
 
             await User.create({
                 id: uuidv4(),
-                fullname: 'Sinh Vien 2',
-                username: 'sinhvien2',
-                email: 'sinhvien2@gmail.com',
+                fullname: 'Sinh Vien 1',
+                username: 'sinhvien1',
+                email: 'sinhvien1@gmail.com',
                 password: hashedStudentPassword,
                 role: 'sinhvien',
             });

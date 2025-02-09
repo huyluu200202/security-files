@@ -14,66 +14,72 @@
 
   <%- include('partials/header') %>
 
-  <div class="container d-flex justify-content-center align-items-center min-vh-100">
-    <div class="card p-4 shadow-sm" style="width: 100%; max-width: 500px;">
-      <h1 class="text-center mb-4">Login</h1>
-      <form id="loginForm">
-        <div class="mb-3">
-          <label class="form-label" for="form2Example1">Username</label>
-          <input type="text" id="form2Example1" class="form-control" name="username" required />
-        </div>
+    <div class="container d-flex justify-content-center align-items-center min-vh-100">
+      <div class="card p-4 shadow-sm" style="width: 100%; max-width: 500px;">
+        <h1 class="text-center mb-4">Đăng nhập</h1>
+        <form id="loginForm">
+          <div class="mb-3">
+            <label class="form-label" for="form2Example1">Tên người dùng:</label>
+            <input type="text" id="form2Example1" class="form-control" name="username" required />
+          </div>
 
-        <div class="mb-3">
-          <label class="form-label" for="form2Example2">Password</label>
-          <input type="password" id="form2Example2" class="form-control" name="password" required />
-        </div>
+          <div class="mb-3">
+            <label class="form-label" for="form2Example2">Mật khẩu</label>
+            <input type="password" id="form2Example2" class="form-control" name="password" required />
+          </div>
 
-        <div class="row mb-4 justify-content-between">
+          <button type="submit" class="btn btn-primary w-100 m-0">Đăng nhập</button>
+        </form>
+
+        <div class="row mb-4 mt-2 justify-content-between">
           <div class="col d-flex align-items-center">
-            <a href="#" class="form-check-label">Forgot password?</a>
+            <a href="#" class="form-check-label" id="forgot-password">Quên mật khẩu?</a>
           </div>
         </div>
-
-        <button type="submit" class="btn btn-primary w-100 m-0">Login</button>
-      </form>
+      </div>
     </div>
-  </div>
 
-  <%- include('partials/footer') %>
+    <%- include('partials/footer') %>
 
-  <script>
-    const loginForm = document.getElementById('loginForm');
-    loginForm.addEventListener('submit', function (e) {
-      e.preventDefault();
+      <script>
+        const loginForm = document.getElementById('loginForm');
+        loginForm.addEventListener('submit', function (e) {
+          e.preventDefault();
 
-      const username = document.getElementById('form2Example1').value;
-      const password = document.getElementById('form2Example2').value;
+          const username = document.getElementById('form2Example1').value;
+          const password = document.getElementById('form2Example2').value;
 
-      fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, password }) 
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.token) {
-          localStorage.setItem('token', data.token);
-          localStorage.setItem('fullname', data.user.fullname);
-          localStorage.setItem('role', data.user.role);
-          window.location.href = '/';
-        } else {
-          alert('Login failed: ' + data.message); 
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
-    });
-  </script>
+          fetch('/api/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.token) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('fullname', data.user.fullname);
+                localStorage.setItem('role', data.user.role);
+                window.location.href = '/';
+              } else {
+                alert('Login failed: ' + data.message);
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+            });
+        });
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        const forgotPasswordLink = document.getElementById('forgot-password');
+        forgotPasswordLink.addEventListener('click', function (event) {
+          event.preventDefault(); 
+          alert('Vui lòng liên hệ quản trị viên để được cấp lại mật khẩu!');
+        });
+      </script>
+
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

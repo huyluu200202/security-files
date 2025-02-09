@@ -29,19 +29,6 @@ CREATE TABLE files (
     FOREIGN KEY (uploadedBy) REFERENCES users(username) ON DELETE CASCADE
 );
 
-CREATE TABLE permissions (
-    id VARCHAR(255) NOT NULL PRIMARY KEY,
-    user_id VARCHAR(50) NOT NULL,
-    file_id VARCHAR(255) NOT NULL,
-    can_view BOOLEAN DEFAULT FALSE,
-    can_download BOOLEAN DEFAULT FALSE,
-    can_edit BOOLEAN DEFAULT FALSE, 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE CASCADE
-);
-
 CREATE TABLE audit_logs (
     id VARCHAR(255) NOT NULL PRIMARY KEY,
     user_id VARCHAR(50) NOT NULL, 
@@ -73,15 +60,4 @@ CREATE TABLE black_list_ip_address (
     blocked_at TIMESTAMP NULL DEFAULT NULL
 );
 
-DROP TABLE IF EXISTS `black_list_ip_address`;
-CREATE TABLE black_list_ip_address (
-    id VARCHAR(50) NOT NULL PRIMARY KEY, 
-    ip_address VARCHAR(255) NOT NULL UNIQUE,  
-    failed_attempts INT DEFAULT 0,           
-    is_blocked BOOLEAN DEFAULT FALSE,       
-    blocked_at TIMESTAMP NULL,             
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
-    last_attempt_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  
-    INDEX ip_address_index (ip_address)  
-);
 

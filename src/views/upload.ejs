@@ -15,14 +15,14 @@
     <%- include('partials/header') %>
 
     <div class="container my-5">
-        <h1 class="mb-4 mt-4 text-center">Upload File</h1>
+        <h1 class="mb-4 mt-5 text-center">Chọn tệp để tải lên</h1>
         <form id="upload-form" enctype="multipart/form-data" class="bg-light p-4 rounded shadow-sm">
             <div class="mb-3">
-                <label for="fileInput" class="form-label">Choose File</label>
+                <!-- <label for="fileInput" class="form-label">Chọn tệp</label> -->
                 <input type="file" name="file" class="form-control" id="fileInput" required>
             </div>
             <div class="d-flex justify-content-center">
-                <button type="submit" class="btn btn-primary w-25">Upload</button>
+                <button type="submit" class="btn btn-primary w-25">Tải lên</button>
             </div>
         </form>
     </div>
@@ -46,14 +46,14 @@
     
                 const result = await response.json();
                 if (response.ok) {
-                    alert('File uploaded successfully!');
+                    alert('Tải lên thành công!');
                     window.location.href = '/';
                 } else {
-                    alert(result.message || 'Failed to upload file.');
+                    alert(result.message || 'Gặp lỗi khi tải tài liệu lên.');
                 }
             } catch (error) {
                 console.error(error);
-                alert('An error occurred while uploading the file.');
+                alert('Gặp lỗi trong khi tải lên tài liệu.');
             }
         });
     </script>

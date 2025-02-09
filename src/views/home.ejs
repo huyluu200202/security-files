@@ -29,18 +29,18 @@
     <%- include('partials/header') %>
 
         <div class="container my-5">
-            <h1 class="mb-4 mt-4 text-center">Uploaded Files</h1>
+            <h1 class="mb-4 mt-5 text-center">Tổng hợp các tệp tài liệu</h1>
             <div id="file-table">
                 <table class="table table-striped table-hover">
                     <thead class="table-dark">
                         <tr>
-                            <th scope="col">File Name</th>
-                            <th scope="col">File Type</th>
-                            <th scope="col">File Size</th>
-                            <th scope="col">Uploaded At</th>
-                            <th scope="col">Uploaded By</th>
-                            <th scope="col">Download</th>
-                            <th scope="col" class="delete-column">Delete</th>
+                            <th scope="col">Tên tệp</th>
+                            <th scope="col">Định dạng</th>
+                            <th scope="col">Kích thước</th>
+                            <th scope="col">Thời gian tải lên</th>
+                            <th scope="col">Tải lên bởi người dùng</th>
+                            <th scope="col">Thao tác</th>
+                            <th scope="col" class="delete-column">Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -125,14 +125,14 @@
                                         <td>
                                             <a href="<%= '/download/' + encodeURIComponent(file.fileName) %>"
                                                 class="btn btn-primary btn-sm">
-                                                <i class="fas fa-download"></i> Download
+                                                <i class="fas fa-download"></i> Tải xuống
                                             </a>
                                         </td>
                                         <td class="delete-column">
                                             <a href="/delete/<%= encodeURIComponent(file.fileName) %>"
                                                 class="btn btn-danger btn-sm"
                                                 onclick="return confirmDelete('<%= encodeURIComponent(file.fileName) %>')">
-                                                <i class="fas fa-trash"></i> Delete
+                                                <i class="fas fa-trash"></i> Xóa tệp
                                             </a>
                                         </td>
                                     </tr>
@@ -140,7 +140,7 @@
                                         <% }); %>
                                             <% } else { %>
                                                 <tr>
-                                                    <td colspan="6" class="text-center">No files uploaded yet.</td>
+                                                    <td colspan="6" class="text-center">Chưa có tài liệu nào.</td>
                                                 </tr>
                                                 <% } %>
 
@@ -235,29 +235,28 @@
                                                                 <td>
                                                                     <a href="<%= '/download/' + encodeURIComponent(publicFile.fileName) %>"
                                                                         class="btn btn-primary btn-sm">
-                                                                        <i class="fas fa-download"></i> Download
+                                                                        <i class="fas fa-download"></i> Tải xuống
                                                                     </a>
                                                                 </td>
                                                                 <td class="delete-column">
                                                                     <a href="/delete/<%= encodeURIComponent(publicFile.fileName) %>"
                                                                         class="btn btn-danger btn-sm"
                                                                         onclick="return confirmDelete('<%= encodeURIComponent(publicFile.fileName) %>')">
-                                                                        <i class="fas fa-trash"></i> Delete
+                                                                        <i class="fas fa-trash"></i> Xóa tệp
                                                                     </a>
                                                                 </td>
                                                             </tr>
                                                             <% }); %>
                                                                 <% } else { %>
                                                                     <tr>
-                                                                        <td colspan="6" class="text-center">No public
-                                                                            files available.</td>
+                                                                        <td colspan="6" class="text-center">Chưa có tài liệu do admin tải lên.</td>
                                                                     </tr>
                                                                     <% } %>
                     </tbody>
                 </table>
                 <div class="mt-4">
                     <a href="/upload" class="btn btn-info m-0" id="upload-section">
-                        <i class="fas fa-file"></i> Upload File
+                        <i class="fas fa-file"></i> Chọn tệp tin
                     </a>
                 </div>
             </div>
@@ -267,7 +266,7 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="previewModalLabel">File Preview</h5>
+                        <h5 class="modal-title" id="previewModalLabel">Xem trước tệp</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -291,7 +290,7 @@
 
                         if (!fileName || !fileType) {
                             console.error('File name or type is missing');
-                            previewContainer.innerHTML = '<p>Unable to preview this file.</p>';
+                            previewContainer.innerHTML = '<p>Không thể xem trước. Định dạng tệp không được hỗ trợ.</p>';
                             return;
                         }
 
@@ -320,15 +319,15 @@
                             } else if (fileType === 'MP3 Audio') {
                                 previewContainer.innerHTML = `<audio controls id="audio-player" style="width: 100%; max-width: 600px;">
         <source src="${fileUrl}" type="audio/mpeg">
-        Your browser does not support the audio element.
+        Trình duyệt của bạn không hỗ trợ với tệp âm thanh.
     </audio>`;
                             } else if (fileType === 'MP4 Video') {
                                 previewContainer.innerHTML = `<video controls id="video-player" style="width: 100%; max-width: 800px;">
         <source src="${fileUrl}" type="video/mp4">
-        Your browser does not support the video element.
+        Trình duyệt của bạn không hỗ trợ với tệp video.
     </video>`;
                             } else {
-                                previewContainer.innerHTML = `<p>No preview available for this file type. Please download it.</p>`;
+                                previewContainer.innerHTML = `<p>Trình duyệt không hỗ trợ xem trước với định dạng này. Vui lòng tải xuống</p>`;
                             }
 
                             const modal = new bootstrap.Modal(document.getElementById('previewModal'));
@@ -341,13 +340,13 @@
                             });
                         } catch (error) {
                             console.error('Error fetching preview:', error);
-                            previewContainer.innerHTML = '<p>Failed to load preview. Please try again later.</p>';
+                            previewContainer.innerHTML = '<p>Không thể tải xem trước. Vui lòng thử lại sau.</p>';
                         }
                     });
                 });
 
                 function confirmDelete(fileName) {
-                    const confirmation = confirm('Are you sure you want to delete the file: ' + decodeURIComponent(fileName) + '?');
+                    const confirmation = confirm('Xác nhận xóa tệp này: ' + decodeURIComponent(fileName) + '?');
                     return confirmation;
                 }
 

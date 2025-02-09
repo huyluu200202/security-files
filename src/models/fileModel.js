@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../configs/database');
-const User = require('./userModel'); // Đảm bảo đúng đường dẫn tới model User
+const User = require('./userModel'); 
 const moment = require('moment-timezone');
 const { v4: uuidv4 } = require('uuid');
 

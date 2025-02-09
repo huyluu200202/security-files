@@ -15,14 +15,14 @@
 <body class="d-flex flex-column min-vh-100">
     <%- include('partials/header') %>
         <div class="container my-5">
-            <h1 class="text-center mb-4 mt-4">Search Results</h1>
+            <h1 class="text-center mb-4 mt-5">Kết quả tìm kiếm</h1>
             <% if (files && files.length> 0) { %>
                 <table class="table table-bordered table-hover">
                     <thead class="table-dark">
                         <tr>
-                            <th>File Name</th>
-                            <th>File Type</th>
-                            <th>File Size</th>
+                            <th>Tên tệp</th>
+                            <th>Định dạng</th>
+                            <th>Kích thước</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -42,10 +42,10 @@
                     </tbody>
                 </table>
                 <% } else { %>
-                    <div class="alert alert-info">No files found</div>
+                    <div class="alert alert-info">Không tìm thấy tệp nào</div>
                     <% } %>
 
-                        <a href="/" class="btn btn-primary m-0">Back to Home</a>
+                        <a href="/" class="btn btn-primary m-0">Quay về trang chủ</a>
                         <%- include('partials/footer') %>
 </body>
 </body>

@@ -1,6 +1,4 @@
-const Permission = require('../models/permissionModel');
 const User = require('../models/userModel');
-const File = require('../models/fileModel');
 
 // exports.assignViewDownloadPermission = async (req, res) => {
 //     try {
@@ -84,10 +82,10 @@ exports.deleteUser = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        await Permission.destroy({ where: { user_id: userId } });
+        // await Permission.destroy({ where: { user_id: userId } });
         await user.destroy();
 
-        res.status(200).json({ message: 'User and associated permissions deleted successfully' });
+        res.status(200).json({ message: 'User deleted successfully' });
     } catch (error) {
         console.error('Error deleting user:', error);
         res.status(500).json({ error: 'Failed to delete user' });
