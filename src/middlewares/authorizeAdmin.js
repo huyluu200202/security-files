@@ -8,7 +8,7 @@ const authorizeAdmin = (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY || '06ffc9c35d1a596406dbc2492b4d79db1976597a91885472def9060e6fa581eb'); 
+        const decoded = jwt.verify(token, '06ffc9c35d1a596406dbc2492b4d79db1976597a91885472def9060e6fa581eb'); 
         req.user = decoded;
 
         if (req.user.role !== 'admin') {

@@ -11,6 +11,7 @@ const mime = require('mime-types');
 const mammoth = require('mammoth');
 const { Sequelize } = require('sequelize');
 const moment = require('moment');
+const jwt = require('jsonwebtoken');
 
 const algorithm = 'aes-256-cbc';
 const key = crypto.randomBytes(32);
@@ -146,7 +147,7 @@ exports.uploadFile = async (req, res) => {
         const { originalname, mimetype, size, path: tempPath } = req.file;
 
         if (disallowedMimeTypes.includes(mimetype)) {
-            return res.status(400).json({ message: 'Không hỗ trợ upload với tệp audio hoặc video.' });
+            return res.status(400).json({ message: 'Không hỗ trợ với các tệp âm thanh và video.' });
         }
 
         const fileName = Buffer.from(originalname, 'latin1').toString('utf8');
@@ -366,16 +367,25 @@ exports.previewFile = async (req, res) => {
         res.status(500).json({ error: 'File preview failed' });
     }
 };
+
 exports.downloadFile = async (req, res) => {
     try {
+        const token = req.cookies.token;
+
+        if (!token) {
+            return res.status(401).json({ message: 'No token provided, authorization denied.' });
+        }
+
+        const decoded = jwt.verify(token, '06ffc9c35d1a596406dbc2492b4d79db1976597a91885472def9060e6fa581eb');
+        const userId = decoded.userId;
+
+        const user = await User.findOne({ where: { id: userId } });
+
+        if (!user) {
+            return res.status(400).json({ message: 'User does not exist' });
+        }
+
         const { fileName } = req.params;
-
-        // Kiểm tra thông tin người dùng
-        // if (!req.user || !req.user.userId) {
-        //     return res.status(401).json({ message: 'Unauthorized, user not found' });
-        // }
-        // const userId = req.user.userId;
-
         const file = await File.findOne({ where: { fileName } });
 
         if (!file) {
@@ -385,11 +395,12 @@ exports.downloadFile = async (req, res) => {
         const filePath = path.join(__dirname, '../uploads', file.fileName);
         const tempFilePath = path.join(__dirname, '../uploads', `temp_download_${file.fileName}`);
 
+        // Giải mã file nếu cần
         decryptFile(filePath, tempFilePath);
 
         const fileContent = fs.readFileSync(tempFilePath);
-
         const mimeType = mime.lookup(file.fileName);
+
         if (mimeType) {
             res.setHeader('Content-Type', mimeType);
         } else {
@@ -397,25 +408,28 @@ exports.downloadFile = async (req, res) => {
         }
 
         const sanitizedFileName = encodeURIComponent(fileName);
-
         res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${sanitizedFileName}`);
 
         res.send(fileContent);
 
         fs.unlinkSync(tempFilePath);
 
-        // await AuditLog.create({
-        //     user_id: userId,
-        //     file_id: file.id,
-        //     action: 'download',
-        //     description: `User downloaded the file: ${file.fileName}`,
-        // });
+        // Lưu log tải file
+        await AuditLog.create({
+            user_id: userId,
+            file_id: file.id,
+            action: 'download',
+            description: `File: ${file.fileName} downloaded`,
+        });
 
     } catch (error) {
         console.error('File download failed:', error);
-        res.status(500).json({ error: 'File download failed' });
+        if (!res.headersSent) {
+            res.status(500).json({ error: 'File download failed' });
+        }
     }
 };
+
 exports.searchFile = async (req, res) => {
     try {
         const { searchQuery } = req.query;

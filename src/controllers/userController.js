@@ -11,12 +11,12 @@ exports.login = async (req, res) => {
     try {
         const user = await User.findOne({ where: { username } });
         if (!user) {
-            return res.status(404).json({ message: 'Username does not exist' });
+            return res.status(404).json({ message: 'Tên người dùng không tồn tại.' });
         }
 
         const blockedIp = await BlackListIp.findOne({ where: { ip_address: ipAddress } });
         if (blockedIp && blockedIp.is_blocked) {
-            return res.status(403).json({ message: 'This IP has been permanently blocked due to multiple failed login attempts.' });
+            return res.status(403).json({ message: 'Địa chỉ IP đã bị chặn sau nhiều lần đăng nhập thất bại.' });
         }
 
         // Kiểm tra mật khẩu
@@ -24,8 +24,10 @@ exports.login = async (req, res) => {
         if (!isPasswordValid) {
             // Gọi hàm handleFailedLogin để kiểm tra và chặn IP nếu cần
             await handleFailedLogin(ipAddress);
-            return res.status(401).json({ message: 'Invalid password' });
+            return res.status(401).json({ message: 'Mật khẩu chưa đúng' });
         }
+
+        await resetFailedAttempts(ipAddress);
 
         // Tạo token và trả về kết quả đăng nhập thành công
         const token = jwt.sign(
@@ -41,7 +43,7 @@ exports.login = async (req, res) => {
         });
 
         res.status(200).json({
-            message: 'Login successful',
+            message: 'Đăng nhập thành công',
             token,
             user: { username: user.username, fullname: user.fullname, role: user.role }
         });
@@ -83,5 +85,22 @@ async function handleFailedLogin(ipAddress) {
         }
     } catch (error) {
         console.error('Error handling failed login attempt:', error);
+    }
+}
+
+async function resetFailedAttempts(ipAddress) {
+    try {
+        let ipRecord = await BlackListIp.findOne({ where: { ip_address: ipAddress } });
+
+        if (ipRecord) {
+            // Reset failed_attempts về 0 khi đăng nhập thành công
+            ipRecord.failed_attempts = 0;
+            ipRecord.last_attempt_at = new Date(); // Cập nhật thời gian lần đăng nhập thành công
+
+            // Lưu lại bản ghi đã được cập nhật
+            await ipRecord.save();
+        }
+    } catch (error) {
+        console.error('Error resetting failed login attempts:', error);
     }
 }

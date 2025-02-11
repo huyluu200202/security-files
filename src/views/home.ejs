@@ -82,21 +82,7 @@
                                                                         data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
                                                                         data-file-type="<%= file.friendlyFileType %>"
                                                                         data-file-name="<%= file.fileName %>"></i>
-                                                                    <% } else if (file.friendlyFileType==='MP3 Audio' )
-                                                                        { %>
-                                                                        <i class="fas fa-file-audio"
-                                                                            style="color: #d310e9; cursor: pointer;"
-                                                                            data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                            data-file-type="<%= file.friendlyFileType %>"
-                                                                            data-file-name="<%= file.fileName %>"></i>
-                                                                        <% } else if
-                                                                            (file.friendlyFileType==='MP4 Video' ) { %>
-                                                                            <i class="fas fa-film"
-                                                                                style="color: #e37c0f; cursor: pointer;"
-                                                                                data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                                data-file-type="<%= file.friendlyFileType %>"
-                                                                                data-file-name="<%= file.fileName %>"></i>
-                                                                            <% } else { %>
+                                                                    <% } else { %>
                                                                                 <i class="fas fa-file"
                                                                                     style="color: #6c757d; cursor: pointer;"
                                                                                     data-file-path="<%= '/uploads/' + encodeURIComponent(file.filePath.replace(/^.*[\\\/]/, '')) %>"
@@ -189,23 +175,7 @@
                                                                                                 data-file-path="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
                                                                                                 data-file-type="<%= publicFile.friendlyFileType %>"
                                                                                                 data-file-name="<%= publicFile.fileName %>"></i>
-                                                                                            <% } else if
-                                                                                                (publicFile.friendlyFileType==='MP3 Audio'
-                                                                                                ) { %>
-                                                                                                <i class="fas fa-file-audio"
-                                                                                                    style="color: #d310e9; cursor: pointer"
-                                                                                                    data-file-path="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                                                    data-file-type="<%= publicFile.friendlyFileType %>"
-                                                                                                    data-file-name="<%= publicFile.fileName %>"></i>
-                                                                                                <% } else if
-                                                                                                    (publicFile.friendlyFileType==='MP4 Video'
-                                                                                                    ) { %>
-                                                                                                    <i class="fas fa-film"
-                                                                                                        style="color: #e37c0f; cursor: pointer"
-                                                                                                        data-file-path="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
-                                                                                                        data-file-type="<%= publicFile.friendlyFileType %>"
-                                                                                                        data-file-name="<%= publicFile.fileName %>"></i>
-                                                                                                    <% } else { %>
+                                                                                            <% } else { %>
                                                                                                         <i class="fas fa-file"
                                                                                                             style="color: #6c757d; cursor: pointer"
                                                                                                             data-file-path="<%= '/uploads/' + encodeURIComponent(publicFile.filePath.replace(/^.*[\\\/]/, '')) %>"
@@ -346,7 +316,7 @@
                 });
 
                 function confirmDelete(fileName) {
-                    const confirmation = confirm('Xác nhận xóa tệp này: ' + decodeURIComponent(fileName) + '?');
+                    const confirmation = confirm('Xác nhận xóa tệp: ' + decodeURIComponent(fileName) + '?');
                     return confirmation;
                 }
 

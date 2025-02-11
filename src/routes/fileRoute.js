@@ -3,6 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fileController = require('../controllers/fileController');
 const authenticate = require('../middlewares/authenticate');
+const authorizeAdmin = require('../middlewares/authorizeAdmin');
 const File = require('../models/fileModel');
 // const uploadFileCheck = require('../middlewares/uploadFileCheck');
 
@@ -40,7 +41,7 @@ router.post('/api/upload', authenticate, (req, res, next) => {
     });
 }, fileController.uploadFile);
 
-router.get('/api/public-files', authenticate, async (req, res) => {
+router.get('/api/public-files', authorizeAdmin, async (req, res) => {
     try {
         const publicFiles = await File.findAll({ where: { isPublic: true } });
         res.json(publicFiles);
