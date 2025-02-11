@@ -28,7 +28,6 @@ router.get('/upload', (req, res) => {
     res.render('upload');
 });
 
-// Xóa check
 router.post('/api/upload', authenticate, (req, res, next) => {
     upload(req, res, (err) => {
         if (err) {

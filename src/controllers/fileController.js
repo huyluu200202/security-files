@@ -497,7 +497,7 @@ exports.searchFile = async (req, res) => {
         const files = await File.findAll({ where: whereClause });
 
         if (files.length === 0) {
-            return res.send(`<script>alert('No files found matching the search criteria.'); window.location.href = '/';</script>`);
+            return res.send(`<script>alert('Không tìm thấy tệp nào phù hợp.'); window.location.href = '/';</script>`);
         }
 
         const filesWithFriendlyTypes = files.map(file => ({
@@ -509,6 +509,6 @@ exports.searchFile = async (req, res) => {
 
     } catch (error) {
         console.error('File search failed:', error);
-        res.send(`<script>alert('File search failed. Please try again.'); window.location.href = '/';</script>`);
+        res.send(`<script>alert('Tìm kiếm không thành công, vui lòng thử lại sau.'); window.location.href = '/';</script>`);
     }
 };

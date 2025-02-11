@@ -4,6 +4,8 @@ const adminController = require('../controllers/adminController');
 const authorizeAdmin = require('../middlewares/authorizeAdmin');
 const User = require('../models/userModel');
 const File = require('../models/fileModel');
+const fs = require('fs');
+const path = require('path');
 
 router.get('/user-manegement', authorizeAdmin, async (req, res) => {
     try {
@@ -43,16 +45,24 @@ router.get('/admin-file', authorizeAdmin, async (req, res) => {
 
 router.get('/user-file', authorizeAdmin, async (req, res) => {
     try {
-        const adminUser = await User.findAll({ where: { username: 'admin' } });
+        const adminUser = await User.findOne({ where: { username: 'admin' } });
         if (!adminUser) {
             return res.status(404).json({ error: 'Admin user not found' });
         }
         const adminUserId = adminUser.id;
 
-        const users = await User.findAll();
-        const files = await File.findAll();
+        // Đọc tệp từ thư mục uploads và lọc tệp .iv
+        const uploadsDirectory = path.join(__dirname, '../uploads/iv_path');
+        fs.readdir(uploadsDirectory, (err, files) => {
+            if (err) {
+                return res.status(500).json({ error: 'Failed to read upload directory' });
+            }
 
-        res.render('userFiles', { users, files, adminUserId });
+            // Lọc các tệp có phần mở rộng .iv
+            const ivFiles = files.filter(file => path.extname(file).toLowerCase() === '.iv');
+
+            res.render('userFiles', { ivFiles, adminUserId });
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to fetch data' });
@@ -78,8 +88,6 @@ router.post('/api/make-public/:fileId', authorizeAdmin, async (req, res) => {
     }
 });
 
-// router.get('/api/permissions/view-download', adminController.checkViewDownloadPermission);
-// router.post('/api/permissions/view-download', authorizeAdmin, adminController.assignViewDownloadPermission);
 router.delete('/api/users/:userId', authorizeAdmin, adminController.deleteUser);
 
 module.exports = router;

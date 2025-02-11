@@ -173,38 +173,12 @@
                         } else if (fileType === 'PowerPoint Presentation') {
                             const googleSlidesUrl = `https://docs.google.com/presentation/d/e/2PACX-1vT6rB5WkZp9eivUwp1L9cW5j1P1jt5f7-_yTj9h8jIMy4zQm5A1Wrxfz1BoKU4_k5hkt5YkD1gbwR9g/pub?output=html`;
                             previewContainer.innerHTML = `<iframe src="${googleSlidesUrl}" width="100%" height="400px"></iframe>`;
-                        } else if (fileType === 'MP3 Audio') {
-                            previewContainer.innerHTML = `<audio controls id="audio-player">
-                                                          <source src="${filePath}" type="audio/mpeg">
-                                                          Your browser does not support the audio element.
-                                                      </audio>`;
-                        } else if (fileType === 'MP4 Video') {
-                            previewContainer.innerHTML = `<video controls id="video-player" width="100%">
-                                                          <source src="${filePath}" type="video/mp4">
-                                                          Your browser does not support the video element.
-                                                      </video>`;
                         } else {
                             previewContainer.innerHTML = `<p>No preview available for this file type. Please download it.</p>`;
                         }
 
                         const modal = new bootstrap.Modal(document.getElementById('previewModal'));
                         modal.show();
-
-                        const modalElement = document.getElementById('previewModal');
-                        modalElement.addEventListener('hidden.bs.modal', function () {
-                            const audioPlayer = document.getElementById('audio-player');
-                            const videoPlayer = document.getElementById('video-player');
-
-                            if (audioPlayer) {
-                                audioPlayer.pause();
-                                audioPlayer.currentTime = 0;
-                            }
-
-                            if (videoPlayer) {
-                                videoPlayer.pause();
-                                videoPlayer.currentTime = 0;
-                            }
-                        });
                     });
                 });
 
