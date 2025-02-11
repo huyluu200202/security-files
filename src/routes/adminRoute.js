@@ -16,14 +16,14 @@ router.get('/user-manegement', authorizeAdmin, async (req, res) => {
         const users = await User.findAll();
         const files = await File.findAll();
 
-        res.render('admin', { users, files, adminUserId });
+        res.render('userManegement', { users, files, adminUserId });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to fetch data' });
     }
 });
 
-router.get('/adminFiles', authorizeAdmin, async (req, res) => {
+router.get('/admin-file', authorizeAdmin, async (req, res) => {
     try {
         const adminUser = await User.findOne({ where: { username: 'admin' } });
         if (!adminUser) {
@@ -41,7 +41,7 @@ router.get('/adminFiles', authorizeAdmin, async (req, res) => {
     }
 });
 
-router.get('/userFiles', authorizeAdmin, async (req, res) => {
+router.get('/user-file', authorizeAdmin, async (req, res) => {
     try {
         const adminUser = await User.findAll({ where: { username: 'admin' } });
         if (!adminUser) {
@@ -77,8 +77,6 @@ router.post('/api/make-public/:fileId', authorizeAdmin, async (req, res) => {
         res.status(500).json({ error: 'Failed to update file status' });
     }
 });
-
-
 
 // router.get('/api/permissions/view-download', adminController.checkViewDownloadPermission);
 // router.post('/api/permissions/view-download', authorizeAdmin, adminController.assignViewDownloadPermission);

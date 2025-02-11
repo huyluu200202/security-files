@@ -69,6 +69,7 @@ const mimeTypeMap = {
     'audio/mpeg': 'MP3 Audio',
     'video/mp4': 'MP4 Video'
 };
+
 const convertFileSize = (size) => {
     if (size < 1024) return size + ' bytes';
     else if (size < 1048576) return (size / 1024).toFixed(2) + ' KB';
@@ -125,11 +126,29 @@ exports.uploadFile = async (req, res) => {
         const currentTime = moment();
         if (lastUploadAt && moment(lastUploadAt).add(30, 'seconds').isAfter(currentTime)) {
             return res.status(429).json({
-                message: `Please wait ${moment(lastUploadAt).add(30, 'seconds').diff(currentTime, 'seconds')} seconds before uploading another file.`
+                message: `Vui lòng chờ ${moment(lastUploadAt).add(30, 'seconds').diff(currentTime, 'seconds')} giây để tiếp tục thực hiện thao tác.`
             });
         }
 
+        // Chặn các file dạng audio và video
+        const disallowedMimeTypes = [
+            'audio/mpeg',
+            'audio/wav',
+            'audio/ogg',
+            'video/mp4',
+            'video/avi',
+            'video/mkv',
+            'video/webm',
+            'audio/x-wav',
+            'audio/aac'
+        ];
+
         const { originalname, mimetype, size, path: tempPath } = req.file;
+
+        if (disallowedMimeTypes.includes(mimetype)) {
+            return res.status(400).json({ message: 'Không hỗ trợ upload với tệp audio hoặc video.' });
+        }
+
         const fileName = Buffer.from(originalname, 'latin1').toString('utf8');
         const friendlyFileType = getFriendlyFileType(mimetype);
         const formattedFileSize = convertFileSize(size);
@@ -144,7 +163,7 @@ exports.uploadFile = async (req, res) => {
             // Xóa file tạm nếu phát hiện trùng lặp
             fs.unlinkSync(tempPath);
             return res.status(409).json({
-                message: 'File already uploaded.',
+                message: 'Tệp đã được đăng tải.',
                 uploadedBy: existingFile.uploadedBy,
                 uploadDate: existingFile.uploadedAt
             });
@@ -350,6 +369,13 @@ exports.previewFile = async (req, res) => {
 exports.downloadFile = async (req, res) => {
     try {
         const { fileName } = req.params;
+
+        // Kiểm tra thông tin người dùng
+        // if (!req.user || !req.user.userId) {
+        //     return res.status(401).json({ message: 'Unauthorized, user not found' });
+        // }
+        // const userId = req.user.userId;
+
         const file = await File.findOne({ where: { fileName } });
 
         if (!file) {
@@ -378,6 +404,13 @@ exports.downloadFile = async (req, res) => {
 
         fs.unlinkSync(tempFilePath);
 
+        // await AuditLog.create({
+        //     user_id: userId,
+        //     file_id: file.id,
+        //     action: 'download',
+        //     description: `User downloaded the file: ${file.fileName}`,
+        // });
+
     } catch (error) {
         console.error('File download failed:', error);
         res.status(500).json({ error: 'File download failed' });
@@ -385,12 +418,12 @@ exports.downloadFile = async (req, res) => {
 };
 exports.searchFile = async (req, res) => {
     try {
-        const { searchQuery } = req.query; 
+        const { searchQuery } = req.query;
         if (!searchQuery) {
             return res.send(`<script>alert('Search query is required'); window.location.href = '/';</script>`);
         }
 
-        let whereClause = {};  
+        let whereClause = {};
 
         if (/\d+(KB|MB|GB)/.test(searchQuery)) {
             whereClause.formattedFileSize = { [Sequelize.Op.like]: `%${searchQuery}%` };

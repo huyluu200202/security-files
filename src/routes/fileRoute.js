@@ -4,7 +4,7 @@ const path = require('path');
 const fileController = require('../controllers/fileController');
 const authenticate = require('../middlewares/authenticate');
 const File = require('../models/fileModel');
-const uploadFileCheck = require('../middlewares/uploadFileCheck');
+// const uploadFileCheck = require('../middlewares/uploadFileCheck');
 
 const router = express.Router();
 
@@ -27,11 +27,12 @@ router.get('/upload', (req, res) => {
     res.render('upload');
 });
 
-router.post('/api/upload', authenticate, uploadFileCheck, (req, res, next) => {
+// Xóa check
+router.post('/api/upload', authenticate, (req, res, next) => {
     upload(req, res, (err) => {
         if (err) {
             if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
-                return res.status(400).json({ message: 'Maximum file size is 50MB' });
+                return res.status(400).json({ message: 'Kích thước tệp không thể vượt quá 50MB' });
             }
             return res.status(500).json({ message: 'File upload failed', error: err.message });
         }
