@@ -12,6 +12,7 @@ const mammoth = require('mammoth');
 const { Sequelize } = require('sequelize');
 const moment = require('moment');
 const jwt = require('jsonwebtoken');
+const unzipper = require('unzipper');
 
 const algorithm = 'aes-256-cbc';
 const key = crypto.randomBytes(32);
@@ -56,6 +57,21 @@ function decryptFile(encryptedFilePath, outputFilePath) {
     const decrypted = Buffer.concat([decipher.update(data), decipher.final()]);
     fs.writeFileSync(outputFilePath, decrypted);
 }
+
+// Hàm kiểm tra tệp ZIP có chứa các tệp nguy hiểm hay không
+async function checkZipFile(tempPath) {
+    const directory = await unzipper.Open.file(tempPath);
+    for (const file of directory.files) {
+        const fileName = file.path;
+        const fileExt = path.extname(fileName).toLowerCase();
+        
+        // Kiểm tra các tệp nguy hiểm bên trong ZIP
+        if (['.exe', '.msi', '.bat', '.sh', '.php', '.asp'].includes(fileExt)) {
+            throw new Error(`Không hỗ trợ các tệp bên trong tệp Zip: ${fileName}`);
+        }
+    }
+}
+
 const mimeTypeMap = {
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Word Document',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'Excel Spreadsheet',
@@ -65,10 +81,7 @@ const mimeTypeMap = {
     'text/plain': 'Text File',
     'image/jpeg': 'JPEG Image',
     'image/png': 'PNG Image',
-    'image/gif': 'GIF Image',
     'application/zip': 'ZIP Archive',
-    'audio/mpeg': 'MP3 Audio',
-    'video/mp4': 'MP4 Video'
 };
 
 const convertFileSize = (size) => {
@@ -114,12 +127,12 @@ exports.uploadFile = async (req, res) => {
         const userRole = req.user.role;
 
         if (userRole === 'sinhvien') {
-            return res.status(403).json({ message: 'Permission denied: Upload not allowed for students' });
+            return res.status(403).json({ message: 'Bạn không có quyền thực hiện chức năng này.' });
         }
 
         const user = await User.findOne({ where: { id: userId } });
         if (!user) {
-            return res.status(400).json({ message: 'User does not exist' });
+            return res.status(400).json({ message: 'Người dùng không tồn tại' });
         }
 
         // Kiểm tra thời gian giữa các lần upload (30 giây)
@@ -131,23 +144,57 @@ exports.uploadFile = async (req, res) => {
             });
         }
 
-        // Chặn các file dạng audio và video
+        // Chặn các file dạng audio và video, img và tệp nguy hiểm
         const disallowedMimeTypes = [
-            'audio/mpeg',
-            'audio/wav',
-            'audio/ogg',
-            'video/mp4',
-            'video/avi',
-            'video/mkv',
-            'video/webm',
-            'audio/x-wav',
-            'audio/aac'
+            'audio/mpeg',  // MP3 Audio
+            'audio/wav',   // WAV Audio
+            'audio/ogg',   // OGG Audio
+            'video/mp4',   // MP4 Video
+            'video/avi',   // AVI Video
+            'video/mkv',   // MKV Video
+            'video/webm',  // WebM Video
+            'audio/x-wav', // Wav Audio
+            'audio/x-m4a',   // M4A Audio
+            'audio/aac',   // AAC Audio
+            'image/gif',   // GIF Image
+        
+            // Các loại tệp nguy hiểm
+            'application/x-msdownload', // EXE (Windows Executable)
+            'application/x-msi',        // MSI Installer
+            'application/x-bat',        // BAT script
+            'application/x-sh',         // Shell script (UNIX)
+            'application/x-cmd',        // CMD script
+            'application/x-php',        // PHP script
+            'application/x-asp',        // ASP script
+            'application/javascript',   // JavaScript
+            'text/javascript',          // JavaScript
+            'application/x-vbscript',   // VBScript
+            'application/xml',          // XML
+            'application/xhtml+xml',    // XHTML
+            'text/html',                 // HTML
+            'text/x-msdos-program',     // DOS Executables
+            'application/x-perl',       // Perl scripts
+            'application/x-ruby',       // Ruby scripts
+            // 'application/x-zip-compressed', // .zip, có thể chứa các tệp độc hại
+            'application/x-tar',        // Tar archive, có thể chứa nhiều tệp độc hại
+            'application/octet-stream'  // Generic binary data
         ];
-
+        
         const { originalname, mimetype, size, path: tempPath } = req.file;
 
         if (disallowedMimeTypes.includes(mimetype)) {
-            return res.status(400).json({ message: 'Không hỗ trợ với các tệp âm thanh và video.' });
+            fs.unlinkSync(tempPath);
+            return res.status(400).json({ message: 'Không hỗ trợ với những định dạng này' });
+        }
+
+        // Kiểm tra nếu tệp là ZIP, cần kiểm tra các tệp bên trong
+        if (mimetype === 'application/zip' || path.extname(originalname).toLowerCase() === '.zip') {
+            try {
+                await checkZipFile(tempPath); // Kiểm tra các tệp trong ZIP
+                fs.unlinkSync(tempPath);
+            } catch (err) {
+                return res.status(400).json({ message: err.message });
+            }
         }
 
         const fileName = Buffer.from(originalname, 'latin1').toString('utf8');
