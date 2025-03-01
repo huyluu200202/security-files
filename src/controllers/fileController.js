@@ -175,9 +175,10 @@ exports.uploadFile = async (req, res) => {
             'text/x-msdos-program',     // DOS Executables
             'application/x-perl',       // Perl scripts
             'application/x-ruby',       // Ruby scripts
-            // 'application/x-zip-compressed', // .zip, có thể chứa các tệp độc hại
             'application/x-tar',        // Tar archive, có thể chứa nhiều tệp độc hại
-            'application/octet-stream'  // Generic binary data
+            'application/octet-stream',  // Generic binary data
+            'application/x-rar-compressed', //	Tệp rar
+            'application/x-compressed'	
         ];
         
         const { originalname, mimetype, size, path: tempPath } = req.file;
@@ -283,7 +284,7 @@ async function handlePdfOCR(filePath, fileId, ocrLogId) {
 
     const options = {
         density: 100,
-        saveFilename: 'pdf_to_image',
+        saveFilename: `pdf_page`,
         savePath: outputPath,
         format: 'png',
         width: 600,
@@ -291,24 +292,37 @@ async function handlePdfOCR(filePath, fileId, ocrLogId) {
     };
 
     const converter = pdf2pic.fromPath(filePath, options);
+    
     try {
-        const resolve = await converter(1);
-        const { data: { text } } = await Tesseract.recognize(resolve.path, 'eng', { logger: (m) => console.log(m) });
+        // Chuyển toàn bộ PDF thành ảnh
+        const pages = await converter.bulk(-1); // -1: Chuyển tất cả các trang
+        console.log(`🔹 Đã chuyển ${pages.length} trang PDF thành ảnh.`);
 
+        // Chạy OCR song song cho tất cả ảnh
+        const ocrPromises = pages.map(async (page) => {
+            const { data: { text } } = await Tesseract.recognize(page.path, 'eng');
+            return text;
+        });
+
+        const ocrResults = await Promise.all(ocrPromises);
+        const fullText = ocrResults.join('\n\n'); // Ghép text của từng trang
+
+        // Cập nhật kết quả vào DB
         await OCRLog.update(
-            { status: 'completed', result: text },
+            { status: 'completed', result: fullText },
             { where: { id: ocrLogId } }
         );
 
-        console.log('OCR Text:', text);
+        console.log('OCR hoàn tất:', fullText);
     } catch (error) {
-        console.error('PDF conversion or OCR processing failed:', error);
+        console.error('PDF chuyển đổi hoặc OCR thất bại:', error);
         await OCRLog.update(
             { status: 'failed', error_message: error.message },
             { where: { id: ocrLogId } }
         );
     }
 }
+
 async function handleImageOCR(filePath, fileId, ocrLogId) {
     try {
         const { data: { text } } = await Tesseract.recognize(filePath, 'eng', { logger: (m) => console.log(m) });
@@ -512,3 +526,4 @@ exports.searchFile = async (req, res) => {
         res.send(`<script>alert('Tìm kiếm không thành công, vui lòng thử lại sau.'); window.location.href = '/';</script>`);
     }
 };
+

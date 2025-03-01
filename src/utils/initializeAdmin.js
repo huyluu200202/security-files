@@ -25,30 +25,30 @@ const initializeAdminAccount = async () => {
             console.log('Admin account already exists!');
         }
 
-        const teacherExists = await User.findOne({ where: { username: 'giangvien2' } });
+        const teacherExists = await User.findOne({ where: { username: 'giangvien4' } });
         if (!teacherExists) {
             const hashedTeacherPassword = await bcrypt.hash('123456', 10);
 
             await User.create({
                 id: uuidv4(),
-                fullname: 'Giang Vien 2',
-                username: 'giangvien2',
-                email: 'giangvien2@gmail.com',
+                fullname: 'Giang Vien 4',
+                username: 'giangvien4',
+                email: 'giangvien4@gmail.com',
                 password: hashedTeacherPassword,
                 role: 'giangvien',
             });
             console.log('Teacher account created!');
         }
 
-        const studentExists = await User.findOne({ where: { username: 'sinhvien1' } });
+        const studentExists = await User.findOne({ where: { username: 'sinhvien2' } });
         if (!studentExists) {
             const hashedStudentPassword = await bcrypt.hash('123456', 10);
 
             await User.create({
                 id: uuidv4(),
-                fullname: 'Sinh Vien 1',
-                username: 'sinhvien1',
-                email: 'sinhvien1@gmail.com',
+                fullname: 'Sinh Vien 3',
+                username: 'sinhvien3',
+                email: 'sinhvien3@gmail.com',
                 password: hashedStudentPassword,
                 role: 'sinhvien',
             });
